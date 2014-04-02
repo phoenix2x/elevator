@@ -20,8 +20,8 @@ public class Runner {
 	private static final int animationBoost = 0;
 
 	public static void main(String[] args) {
-//		MainWindow mainWindow = new MainWindow();
-//		new Thread(mainWindow).start();
+		MainWindow mainWindow = new MainWindow();
+		new Thread(mainWindow).start();
 		Random random = new Random();
 		List<NumberedStoryContainer<Passenger>>  dispatchStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
 		List<NumberedStoryContainer<Passenger>> arrivalStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
