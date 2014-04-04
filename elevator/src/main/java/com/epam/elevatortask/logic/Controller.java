@@ -3,11 +3,17 @@ package com.epam.elevatortask.logic;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.Timer;
+
 import org.apache.log4j.Logger;
 
 import com.epam.elevatortask.beans.NumberedStoryContainer;
 import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.beans.StoryContainer;
+import com.epam.elevatortask.ui.ElevatorPainter;
+import com.epam.elevatortask.ui.TextAreaAppender;
+import com.epam.elevatortask.ui.beans.ElevatorPaintEvent;
+import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent.DoorState;
 
 
 
@@ -20,6 +26,7 @@ public class Controller {
 	private final int storiesNumber;
 	private final int elevatorCapacity;
 	private final int initalPassengerNumber;
+	private ElevatorPainter elevatorPainter;
 	private AtomicInteger loop=new AtomicInteger();
 	private AtomicInteger barrier = new AtomicInteger();
 	private int remainPassengersNumber;
@@ -40,30 +47,29 @@ public class Controller {
 	}
 
 	
+	/**
+	 * @param elevatorPainter the elevatorPainter to set
+	 */
+	public void setElevatorPainter(ElevatorPainter elevatorPainter) {
+		this.elevatorPainter = elevatorPainter;
+	}
+
+
 	public void doWork(){
+//		elevatorPainter = new ElevatorPainter();
 		LOG.info("STARTING_TRANSPORTATION");
 		barrier.addAndGet(initalPassengerNumber);
 		while (remainPassengersNumber!=0) {
-//			System.out.println("remain pass " + remainPassengersNumber);
-//			try {
-//				Thread.sleep(10);
-//			} catch (InterruptedException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			System.out.println();
 			move();
-//			System.out.println("curFlor" + currentFloor + "remain pass" + remainPassengersNumber);
-//			barrier.addAndGet(elevatorContainer.getPassengersList().size());
-//			System.out.println("barrier after add " + barrier.get());
+			if (elevatorPainter!=null){
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.CLOSED));
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.OPENED));
+			}
 			deboard();
-//			barrier.addAndGet(dispatchStoryContainersList.get(currentFloor).getPassengersList().size());
 			board();
-			
-			
-			
-			
-			
+			if (elevatorPainter!=null){
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.CLOSED));
+			}
 		}
 		validateResult();
 		
@@ -152,12 +158,11 @@ public class Controller {
 	}
 	public synchronized boolean requestDeboard(Passenger passenger){
 		if (passenger.getDestinationStory() == currentStory){
-			while (bufferPassenger!=null) {
+			while (bufferPassenger!=null&&!Thread.currentThread().isInterrupted()) {
 				try {
 					this.wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Thread.currentThread().interrupt();
 				}
 			}
 			bufferPassenger = passenger;
@@ -172,14 +177,13 @@ public class Controller {
 		
 	}
 	
-	public synchronized boolean requestBoard(Passenger passenger){
+	public synchronized boolean requestBoard(Passenger passenger) {
 		if (passengerDirection(passenger).equals(calculateDirection())) {
-			while (bufferPassenger!=null){
+			while (bufferPassenger!=null&&!Thread.currentThread().isInterrupted()){
 				try {
 					this.wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Thread.currentThread().interrupt();
 				}
 			}
 			if (!isFull()){
@@ -299,5 +303,24 @@ public class Controller {
 		}
 		LOG.info("Test succed: " + result);
 		LOG.info("COMPLETION_TRANSPORTATION");
+	}
+	public void printOnAbort(){
+		for(NumberedStoryContainer<Passenger> arrivalStoryContainer: arrivalStoryContainersList){
+			LOG.info("Story " + arrivalStoryContainer.getStoryNumber());
+			for (Passenger passenger: arrivalStoryContainer.getPassengersList()){
+				LOG.info("Passenger " + passenger.getPassengerID() + " transportationState " + passenger.getTransportationState());
+			}
+		}
+
+		for(NumberedStoryContainer<Passenger> dispatchStoryContainer: dispatchStoryContainersList){
+			LOG.info("Dispatch story " + dispatchStoryContainer.getStoryNumber());
+			for (Passenger passenger: dispatchStoryContainer.getPassengersList()){
+				LOG.info("Passenger " + passenger.getPassengerID() + " transportationState " + passenger.getTransportationState());
+			}
+		}
+		LOG.info("Elevator container");
+		for(Passenger passenger: elevatorContainer.getPassengersList()){
+			LOG.info("Passenger " + passenger.getPassengerID() + " transportationState " + passenger.getTransportationState());
+		}
 	}
 }

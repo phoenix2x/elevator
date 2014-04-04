@@ -3,12 +3,6 @@
 
 <log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-    <appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
-        <param name="Encoding" value="Cp866"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{ISO8601} - %m%n" />
-        </layout>
-    </appender>
     <appender name="FileAppender" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="Controller.log"/>
         <param name="MaxFileSize" value="100MB"/>
@@ -21,7 +15,6 @@
 
     <root>
         <priority value="INFO"/>
-        <appender-ref ref="ConsoleAppender" />
         <appender-ref ref="FileAppender"/>
     </root>
 

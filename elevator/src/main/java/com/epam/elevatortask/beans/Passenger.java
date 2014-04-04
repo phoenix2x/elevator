@@ -57,37 +57,37 @@ public class Passenger {
 		}
 
 		public void run() {
-			
 //			System.out.println("thread " + Thread.currentThread().getName() + " start. initFloor "
 //					+ dispatchStoryContainer.getStoryNumber() + " dest " + Passenger.this.getDestinationStory());
 			boolean operationSuccess = false;
 			synchronized (dispatchStoryContainer) {
 				controller.decBarrier();
-				while (!operationSuccess) {
+				while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
 					try {
 						dispatchStoryContainer.wait();
 						operationSuccess = controller.requestBoard(Passenger.this);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Thread.currentThread().interrupt();
 					}
 				}
 			}
 			operationSuccess = false;
 			synchronized (elevatorContainer) {
 				controller.decBarrier();
-				while (!operationSuccess) {
+				while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
 					try {
-//						System.out.println(Thread.currentThread().getName() + " wait on " + elevatorContainer);
 						elevatorContainer.wait();
 						operationSuccess = controller.requestDeboard(Passenger.this);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Thread.currentThread().interrupt();
 					}
 				}
 			}
-			transportationState = TransportationState.COMPLETED;
+			if (Thread.currentThread().isInterrupted()){
+				transportationState = TransportationState.ABORTED;
+			}else{
+				transportationState = TransportationState.COMPLETED;
+			}
 		}
 	}
 }

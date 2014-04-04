@@ -1,53 +1,43 @@
 package com.epam.elevatortask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.awt.EventQueue;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
-import com.epam.elevatortask.beans.NumberedStoryContainer;
-import com.epam.elevatortask.beans.Passenger;
-import com.epam.elevatortask.beans.StoryContainer;
-import com.epam.elevatortask.logic.Controller;
-import com.epam.elevatortask.ui.MainWindow;
+import com.epam.elevatortask.logic.Worker;
+import com.epam.elevatortask.ui.ElevatorFrame;
+import com.epam.elevatortask.ui.TextAreaAppender;
 
 public class Runner {
 
+	private static final String CONSOLE_APPENDER_LAYOUT = "%d{ISO8601} - %m%n";
+	private static final String TEXT_AREA_APPENDER_LAYOUT = "%m%n";
 	private static final int storiesNumber = 10;
-	private static final int passengersNumber = 50;
+	private static final int passengersNumber = 200;
 	private static final int elevatorCapacity = 10;
-	private static final int animationBoost = 0;
 
 	public static void main(String[] args) {
-		MainWindow mainWindow = new MainWindow();
-		new Thread(mainWindow).start();
-		Random random = new Random();
-		List<NumberedStoryContainer<Passenger>>  dispatchStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
-		List<NumberedStoryContainer<Passenger>> arrivalStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
-		StoryContainer<Passenger> elevatorContainer = new StoryContainer<Passenger>();
-		for (int i = 0; i < storiesNumber; i++){
-			dispatchStoryContainersList.add(new NumberedStoryContainer<Passenger>(i));
-			arrivalStoryContainersList.add(new NumberedStoryContainer<Passenger>(i));
+		int animationBoost = 1;
+		Worker worker = new Worker(storiesNumber, passengersNumber, elevatorCapacity);
+		worker.initialization();
+		if (animationBoost == 0){
+			ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout(CONSOLE_APPENDER_LAYOUT));
+			Logger.getRootLogger().addAppender(consoleAppender);
+			worker.startTransportation();;
+		}else{
+			final ElevatorFrame frame = new ElevatorFrame(worker,storiesNumber);
+			worker.setFrame(frame);
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						frame.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			Logger.getRootLogger().addAppender(new TextAreaAppender(frame.getJTextArea(),new PatternLayout(TEXT_AREA_APPENDER_LAYOUT)));
 		}
-		for (int i = 0; i < passengersNumber; i++) {
-			int initFloor = random.nextInt(storiesNumber);
-			int destFloor = random.nextInt(storiesNumber);
-			while (initFloor==destFloor) {
-				destFloor = random.nextInt(storiesNumber);
-			}
-			dispatchStoryContainersList.get(initFloor).getPassengersList().add(new Passenger(i, destFloor));
-		}
-		Controller controller = new Controller(dispatchStoryContainersList, arrivalStoryContainersList, elevatorContainer, storiesNumber, elevatorCapacity, passengersNumber);
-		ExecutorService threadPool = Executors.newFixedThreadPool(passengersNumber);
-		for (int i = 0; i < storiesNumber; i++) {
-			NumberedStoryContainer<Passenger> dispatchStoryContainer = dispatchStoryContainersList.get(i);
-			for (Passenger passenger: dispatchStoryContainer.getPassengersList()){
-//				threadPool.submit(passenger.new TransportationTask(controller, dispatchStoryContainer, elevatorContainer));
-				new Thread(passenger.new TransportationTask(controller, dispatchStoryContainer, elevatorContainer),"pass " + passenger.getPassengerID()).start();
-			}
-		}
-		controller.doWork();
-	}
-
+	}	
 }
