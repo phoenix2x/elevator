@@ -23,6 +23,7 @@ public class FileViewer extends JFrame {
 	 * Create the frame.
 	 */
 	public FileViewer() {
+		setTitle("View log file");
 		setBounds(100, 100, 1024, 768);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

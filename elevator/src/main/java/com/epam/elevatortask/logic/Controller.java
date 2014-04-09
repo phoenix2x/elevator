@@ -3,17 +3,14 @@ package com.epam.elevatortask.logic;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.Timer;
-
 import org.apache.log4j.Logger;
 
 import com.epam.elevatortask.beans.NumberedStoryContainer;
 import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.beans.StoryContainer;
 import com.epam.elevatortask.ui.ElevatorPainter;
-import com.epam.elevatortask.ui.TextAreaAppender;
 import com.epam.elevatortask.ui.beans.ElevatorPaintEvent;
-import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent.DoorState;
+import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent.ElevatorAction;
 
 
 
@@ -27,8 +24,8 @@ public class Controller {
 	private final int elevatorCapacity;
 	private final int initalPassengerNumber;
 	private ElevatorPainter elevatorPainter;
-	private AtomicInteger loop=new AtomicInteger();
-	private AtomicInteger barrier = new AtomicInteger();
+	private volatile AtomicInteger loop=new AtomicInteger();
+	private volatile AtomicInteger barrier = new AtomicInteger();
 	private int remainPassengersNumber;
 	private int currentStory = -1;
 	private Direction lastDirection = Direction.UP;
@@ -60,15 +57,40 @@ public class Controller {
 		LOG.info("STARTING_TRANSPORTATION");
 		barrier.addAndGet(initalPassengerNumber);
 		while (remainPassengersNumber!=0) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			move();
 			if (elevatorPainter!=null){
-				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.CLOSED));
-				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.OPENED));
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.CLOSED));
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.OPENED));
 			}
 			deboard();
 			board();
 			if (elevatorPainter!=null){
-				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, DoorState.CLOSED));
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.CLOSED));
+			}
+		}
+		validateResult();
+		
+	}
+	public void guiDoWork(){
+//		elevatorPainter = new ElevatorPainter();
+		LOG.info("STARTING_TRANSPORTATION");
+		barrier.addAndGet(initalPassengerNumber);
+		while (remainPassengersNumber!=0) {
+			move();
+			if (elevatorPainter!=null){
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.CLOSED));
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.OPENED));
+			}
+			deboard();
+			board();
+			if (elevatorPainter!=null){
+				elevatorPainter.addEvent(new ElevatorPaintEvent(currentStory, ElevatorAction.CLOSED));
 			}
 		}
 		validateResult();

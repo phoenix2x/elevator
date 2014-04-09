@@ -1,18 +1,18 @@
 package com.epam.elevatortask.ui.beans;
 
-import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent.DoorState;
+import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent.ElevatorAction;
 
 public class ElevatorPaintEvent {
 	private final int currentStory;
-	private final DoorState doorState;
+	private final ElevatorAction elevatorAction;
 	/**
 	 * @param currentStory
-	 * @param doorState
+	 * @param elevatorAction
 	 */
-	public ElevatorPaintEvent(int currentStory, DoorState doorState) {
+	public ElevatorPaintEvent(int currentStory, ElevatorAction elevatorAction) {
 		super();
 		this.currentStory = currentStory;
-		this.doorState = doorState;
+		this.elevatorAction = elevatorAction;
 	}
 	/**
 	 * @return the currentStory
@@ -23,8 +23,8 @@ public class ElevatorPaintEvent {
 	/**
 	 * @return the doorState
 	 */
-	public DoorState getDoorState() {
-		return doorState;
+	public ElevatorAction getElevatorAction() {
+		return elevatorAction;
 	}
 
 }

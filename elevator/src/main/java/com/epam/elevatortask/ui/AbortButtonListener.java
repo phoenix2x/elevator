@@ -9,30 +9,34 @@ import javax.swing.SwingUtilities;
 
 import com.epam.elevatortask.logic.Worker;
 
-public class StartButtonListener implements ActionListener {
+public class AbortButtonListener implements ActionListener {
 	private final Worker worker;
-	/**
-	 * @param worker
-	 */
-	public StartButtonListener(Worker worker) {
-		super();
+	
+	public AbortButtonListener(Worker worker){
 		this.worker = worker;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent evt) {
 		JButton button = (JButton) evt.getSource();
 		final ElevatorFrame elevatorFrame = (ElevatorFrame) SwingUtilities.getRoot(button);
-		elevatorFrame.setButtonAbort();
+		button.setEnabled(false);
 		new Thread(new Runnable() {
+			
+			@Override
 			public void run() {
-				worker.startTransportation();
+				worker.abortTransportation();
+				worker.printOnAbort();
+				
 				EventQueue.invokeLater(new Runnable() {
-					
 					public void run() {
 						elevatorFrame.setButtonFinish();
 					}
 				});
+				
 			}
 		}).start();
+		
 	}
+
 }

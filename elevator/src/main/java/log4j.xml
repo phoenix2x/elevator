@@ -5,7 +5,7 @@
 
     <appender name="FileAppender" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="Controller.log"/>
-        <param name="MaxFileSize" value="100MB"/>
+        <param name="MaxFileSize" value="10MB"/>
         <param name="MaxBackupIndex" value="10"/>
         <param name="Encoding" value="UTF-8"/>
         <layout class="org.apache.log4j.PatternLayout">

@@ -15,6 +15,7 @@ import com.epam.elevatortask.ui.ElevatorPainter;
 public class Worker {
 	private List<NumberedStoryContainer<Passenger>> dispatchStoryContainersList;
 	private List<NumberedStoryContainer<Passenger>> arrivalStoryContainersList;
+	private StoryContainer<Passenger> elevatorContainer;
 	private int storiesNumber;
 	private int passengersNumber;
 	private int elevatorCapacity;
@@ -26,17 +27,35 @@ public class Worker {
 		this.passengersNumber = passengersNumber;
 		this.elevatorCapacity = elevatorCapacity;
 	}
+	/**
+	 * @return the dispatchStoryContainersList
+	 */
+	public List<NumberedStoryContainer<Passenger>> getDispatchStoryContainersList() {
+		return dispatchStoryContainersList;
+	}
+	/**
+	 * @return the arrivalStoryContainersList
+	 */
+	public List<NumberedStoryContainer<Passenger>> getArrivalStoryContainersList() {
+		return arrivalStoryContainersList;
+	}
+	/**
+	 * @return the elevatorContainer
+	 */
+	public StoryContainer<Passenger> getElevatorContainer() {
+		return elevatorContainer;
+	}
+	/**
+	 * @return the passengersNumber
+	 */
+	public int getPassengersNumber() {
+		return passengersNumber;
+	}
 	public void setFrame(ElevatorFrame elevatorFrame){
 		this.elevatorFrame = elevatorFrame;
 	}
 	public void abortTransportation(){
 		threadPool.shutdownNow();
-//		try {
-//			threadPool.awaitTermination(1000, null);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 	/**
 	 * @param mainFrame the mainFrame to set
@@ -46,6 +65,7 @@ public class Worker {
 		Random random = new Random();
 		dispatchStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
 		arrivalStoryContainersList = new ArrayList<NumberedStoryContainer<Passenger>>();
+		elevatorContainer = new StoryContainer<Passenger>();
 		for (int i = 0; i < storiesNumber; i++){
 			dispatchStoryContainersList.add(new NumberedStoryContainer<Passenger>(i));
 			arrivalStoryContainersList.add(new NumberedStoryContainer<Passenger>(i));
@@ -60,14 +80,13 @@ public class Worker {
 		}
 	}
 	public void startTransportation(){
-		StoryContainer<Passenger> elevatorContainer = new StoryContainer<Passenger>();
 		controller = new Controller(dispatchStoryContainersList, arrivalStoryContainersList, elevatorContainer, storiesNumber, elevatorCapacity, passengersNumber);
 		if (elevatorFrame!=null){
 			ElevatorPainter elevatorPainter = new ElevatorPainter(elevatorFrame.getElevatorGrapthComponent()); 
 			elevatorPainter.startTimer();
 			controller.setElevatorPainter(elevatorPainter);
 		}
-		threadPool = Executors.newFixedThreadPool(passengersNumber);
+		threadPool = Executors.newCachedThreadPool();
 		for (int i = 0; i < storiesNumber; i++) {
 			NumberedStoryContainer<Passenger> dispatchStoryContainer = dispatchStoryContainersList.get(i);
 			for (Passenger passenger: dispatchStoryContainer.getPassengersList()){

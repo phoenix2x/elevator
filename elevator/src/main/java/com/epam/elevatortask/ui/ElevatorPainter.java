@@ -5,7 +5,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
+import org.apache.log4j.Logger;
 
 import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent;
 import com.epam.elevatortask.ui.beans.ElevatorPaintEvent;
@@ -18,7 +21,7 @@ public class ElevatorPainter implements ActionListener{
 		this.elevatorGrapthComponent = elevatorGrapthComponent;
 	}
 	public void startTimer(){
-		timer = new Timer(1000, this);
+		timer = new Timer(30, this);
 		timer.start();
 	}
 	
@@ -33,8 +36,10 @@ public class ElevatorPainter implements ActionListener{
 		ElevatorPaintEvent event = pollEvent();
 		if (event!=null){
 			elevatorGrapthComponent.setCurrentStory(event.getCurrentStory());
-			elevatorGrapthComponent.setDoorState(event.getDoorState());
+			elevatorGrapthComponent.setDoorState(event.getElevatorAction());
 			elevatorGrapthComponent.repaint();
 		}
+		ElevatorFrame elevatorFrame =  (ElevatorFrame) SwingUtilities.getRoot(elevatorGrapthComponent);
+		elevatorFrame.updateData();
 	}
 }

@@ -14,7 +14,7 @@ public class Runner {
 	private static final String CONSOLE_APPENDER_LAYOUT = "%d{ISO8601} - %m%n";
 	private static final String TEXT_AREA_APPENDER_LAYOUT = "%m%n";
 	private static final int storiesNumber = 10;
-	private static final int passengersNumber = 200;
+	private static final int passengersNumber = 1000;
 	private static final int elevatorCapacity = 10;
 
 	public static void main(String[] args) {
