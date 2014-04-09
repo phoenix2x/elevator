@@ -1,7 +1,7 @@
 package com.epam.elevatortask.beans;
 
 
-public class NumberedStoryContainer<T extends Passenger> extends StoryContainer<T>{
+public class NumberedStoryContainer<T extends Passenger> extends Container<T>{
 	private final int storyNumber;
 
 	/**

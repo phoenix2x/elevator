@@ -14,13 +14,12 @@ public class Runner {
 	private static final String CONSOLE_APPENDER_LAYOUT = "%d{ISO8601} - %m%n";
 	private static final String TEXT_AREA_APPENDER_LAYOUT = "%m%n";
 	private static final int storiesNumber = 10;
-	private static final int passengersNumber = 1000;
+	private static final int passengersNumber = 50;
 	private static final int elevatorCapacity = 10;
 
 	public static void main(String[] args) {
-		int animationBoost = 1;
+		int animationBoost = 0;
 		Worker worker = new Worker(storiesNumber, passengersNumber, elevatorCapacity);
-		worker.initialization();
 		if (animationBoost == 0){
 			ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout(CONSOLE_APPENDER_LAYOUT));
 			Logger.getRootLogger().addAppender(consoleAppender);

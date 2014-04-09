@@ -26,7 +26,7 @@ public class AbortButtonListener implements ActionListener {
 			@Override
 			public void run() {
 				worker.abortTransportation();
-				worker.printOnAbort();
+//				worker.printOnAbort();
 				
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {

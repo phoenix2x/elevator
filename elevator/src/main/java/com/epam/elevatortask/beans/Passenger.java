@@ -1,21 +1,32 @@
 package com.epam.elevatortask.beans;
 
-import com.epam.elevatortask.logic.Controller;
+import java.util.Random;
+
+import com.epam.elevatortask.enums.TransportationState;
 
 public class Passenger {
-
+	
+	private static int currentPassengerID = 1;
 	private final int passengerID;
 	private final int destinationStory;
 	private TransportationState transportationState = TransportationState.NOT_STARTED;
 
 	/**
-	 * @param passengerID
-	 * @param destinationStory
+	 * @param initStory
+	 * @param storiesNumber
 	 */
-	public Passenger(int passengerID, int destinationStory) {
+	public Passenger(int initStory, int storiesNumber) {
 		super();
-		this.passengerID = passengerID;
-		this.destinationStory = destinationStory;
+		this.passengerID = currentPassengerID++;
+		this.destinationStory = calculateDestinationStory(initStory, storiesNumber);
+	}
+	private int calculateDestinationStory(int initStory, int storiesNumber){
+		Random random = new Random();
+		int destinationStory = random.nextInt(storiesNumber);
+		while (destinationStory==initStory) {
+			destinationStory = random.nextInt(storiesNumber);
+		}
+		return destinationStory;	
 	}
 
 	/**
@@ -38,56 +49,10 @@ public class Passenger {
 	public int getDestinationStory() {
 		return destinationStory;
 	}
-
-	public enum TransportationState {
-		NOT_STARTED, IN_PROGRESS, COMPLETED, ABORTED
+	public void setTransportationState(TransportationState transportationState){
+		this.transportationState = transportationState;
 	}
+	
 
-	public class TransportationTask implements Runnable {
-		private final Controller controller;
-		private final NumberedStoryContainer<Passenger> dispatchStoryContainer;
-		private final StoryContainer<Passenger> elevatorContainer;
-
-		public TransportationTask(Controller controller, NumberedStoryContainer<Passenger> dispatchStoryContainer,
-				StoryContainer<Passenger> elevatorContainer) {
-			this.controller = controller;
-			this.dispatchStoryContainer = dispatchStoryContainer;
-			this.elevatorContainer = elevatorContainer;
-			transportationState = TransportationState.IN_PROGRESS;
-		}
-
-		public void run() {
-//			System.out.println("thread " + Thread.currentThread().getName() + " start. initFloor "
-//					+ dispatchStoryContainer.getStoryNumber() + " dest " + Passenger.this.getDestinationStory());
-			boolean operationSuccess = false;
-			synchronized (dispatchStoryContainer) {
-				controller.decBarrier();
-				while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
-					try {
-						dispatchStoryContainer.wait();
-						operationSuccess = controller.requestBoard(Passenger.this);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
-				}
-			}
-			operationSuccess = false;
-			synchronized (elevatorContainer) {
-				controller.decBarrier();
-				while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
-					try {
-						elevatorContainer.wait();
-						operationSuccess = controller.requestDeboard(Passenger.this);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
-				}
-			}
-			if (Thread.currentThread().isInterrupted()){
-				transportationState = TransportationState.ABORTED;
-			}else{
-				transportationState = TransportationState.COMPLETED;
-			}
-		}
-	}
+	
 }
