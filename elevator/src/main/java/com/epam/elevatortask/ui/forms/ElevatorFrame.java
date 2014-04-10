@@ -1,4 +1,4 @@
-package com.epam.elevatortask.ui;
+package com.epam.elevatortask.ui.forms;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -7,23 +7,26 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
-import com.epam.elevatortask.beans.NumberedStoryContainer;
+import com.epam.elevatortask.beans.Building;
 import com.epam.elevatortask.beans.Passenger;
-import com.epam.elevatortask.logic.Worker;
-import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent;
+import com.epam.elevatortask.interfaces.IElevatorWorker;
+import com.epam.elevatortask.ui.components.ElevatorGrapthComponent;
+import com.epam.elevatortask.ui.listeners.AbortButtonListener;
+import com.epam.elevatortask.ui.listeners.FinishButtonListener;
+import com.epam.elevatortask.ui.listeners.StartButtonListener;
 
 import java.awt.Color;
 
 import javax.swing.border.LineBorder;
 
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JLabel;
 
 import java.awt.GridLayout;
+
 import javax.swing.SwingConstants;
 
 public class ElevatorFrame extends JFrame {
@@ -35,7 +38,7 @@ public class ElevatorFrame extends JFrame {
 	private static final String START = "Start";
 	private static final String ABORT = "Abort";
 	private static final String FINISH = "View log file";
-	private final Worker worker;
+	private final IElevatorWorker worker;
 	private JPanel contentPane;
 	private JTextArea textArea;
 	private JButton btnStart;
@@ -59,7 +62,7 @@ public class ElevatorFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ElevatorFrame(Worker worker,int storiesNumber) {
+	public ElevatorFrame(Building<Passenger> building,int storiesNumber, IElevatorWorker worker, int passengersNumber) {
 		setTitle("Elevator");
 		this.worker = worker;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,13 +83,6 @@ public class ElevatorFrame extends JFrame {
 		btnStart.addActionListener(new StartButtonListener(worker));
 		btnStart.setBounds(184, 685, 129, 23);
 		contentPane.add(btnStart);
-		
-		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber);
-		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
-		elevatorGrapthComponent.setBackground(Color.WHITE);
-		elevatorGrapthComponent.setBounds(10, 11, 476, 659);
-		elevatorGrapthComponent.calculateStoriesSize();
-		contentPane.add(elevatorGrapthComponent);
 		
 		panel = new JPanel();
 		panel.setBounds(496, 11, 510, 393);
@@ -123,7 +119,7 @@ public class ElevatorFrame extends JFrame {
 		lblElevatorcontainer.setBounds(44, 11, 162, 14);
 		panel.add(lblElevatorcontainer);
 		
-		lblElevatorcontinersize = new JLabel(String.valueOf(worker.getElevatorContainer().getPassengersList().size()));
+		lblElevatorcontinersize = new JLabel(String.valueOf(building.getElevatorContainer().getPassengersNumber()));
 		lblElevatorcontinersize.setBounds(216, 11, 284, 14);
 		panel.add(lblElevatorcontinersize);
 		
@@ -131,34 +127,41 @@ public class ElevatorFrame extends JFrame {
 		lblTotal.setBounds(44, 371, 102, 14);
 		panel.add(lblTotal);
 		
-		lblTotalSize = new JLabel(String.valueOf(worker.getPassengersNumber()));
+		lblTotalSize = new JLabel(String.valueOf(passengersNumber));
 		lblTotalSize.setBounds(156, 371, 344, 14);
 		panel.add(lblTotalSize);
 		
-		
-		for (NumberedStoryContainer<Passenger> storyContainer: worker.getDispatchStoryContainersList()){
-			dispatchPanel.add(new JLabel("Story " + storyContainer.getStoryNumber()));
+		int[] dispatchPassengers = new int[storiesNumber];
+		int[] arrivalPassengers = new int[storiesNumber];
+		for (int i=0; i < building.getStoriesNumber(); i++){
+			dispatchPassengers[i] = building.getDispatchContainer(i).getPassengersNumber();
+			arrivalPassengers[i] = building.getArrivalContainer(i).getPassengersNumber();
 			
-			JLabel lblNewLabel_1 = new JLabel(String.valueOf(storyContainer.getPassengersList().size()));
-			dispatchLabelsList.add(lblNewLabel_1);
-			dispatchPanel.add(lblNewLabel_1);
-		}
-		for (NumberedStoryContainer<Passenger> storyContainer: worker.getArrivalStoryContainersList()){
-			arrivalPanel.add(new JLabel("Story " + storyContainer.getStoryNumber()));
+			dispatchPanel.add(new JLabel("Story " + i));
+			arrivalPanel.add(new JLabel("Story " + i));
 			
-			JLabel lblNewLabel_1 = new JLabel(String.valueOf(storyContainer.getPassengersList().size()));
-			arrivalLabelsList.add(lblNewLabel_1);
-			arrivalPanel.add(lblNewLabel_1);
-		}
-		
+			JLabel newDispatchLabel = new JLabel(String.valueOf(dispatchPassengers[i]));
+			dispatchLabelsList.add(newDispatchLabel);
+			dispatchPanel.add(newDispatchLabel);
+			
+			JLabel newArrivalLabel = new JLabel(String.valueOf(arrivalPassengers[i]));
+			arrivalLabelsList.add(newArrivalLabel);
+			arrivalPanel.add(newArrivalLabel);
+		}		
+		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
+		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
+		elevatorGrapthComponent.setBackground(Color.WHITE);
+		elevatorGrapthComponent.setBounds(10, 11, 476, 659);
+		elevatorGrapthComponent.calculateStoriesSize();
+		contentPane.add(elevatorGrapthComponent);
 	}
-	public void updateData(){
-		lblElevatorcontinersize.setText(String.valueOf(worker.getElevatorContainer().getPassengersList().size()));
-		for (int i = 0; i<dispatchLabelsList.size(); i++){
-			dispatchLabelsList.get(i).setText(String.valueOf(worker.getDispatchStoryContainersList().get(i).getPassengersList().size()));
-			arrivalLabelsList.get(i).setText(String.valueOf(worker.getArrivalStoryContainersList().get(i).getPassengersList().size()));
-		}
-	}
+//	public void updateData(int elevatorPassengerNumber,int[] dispatchPassengerNumber, int[] arrivalPassengerNumber){
+//		lblElevatorcontinersize.setText(String.valueOf(worker.getElevatorContainer().getPassengersList().size()));
+//		for (int i = 0; i<dispatchLabelsList.size(); i++){
+//			dispatchLabelsList.get(i).setText(String.valueOf(worker.getDispatchStoryContainersList().get(i).getPassengersList().size()));
+//			arrivalLabelsList.get(i).setText(String.valueOf(worker.getArrivalStoryContainersList().get(i).getPassengersList().size()));
+//		}
+//	}
 	public JTextArea getJTextArea(){
 		return textArea;
 	}
@@ -181,5 +184,23 @@ public class ElevatorFrame extends JFrame {
 		}
 		btnStart.addActionListener(new FinishButtonListener());
 		btnStart.setEnabled(true);
+	}
+	/**
+	 * @return the dispatchLabelsList
+	 */
+	public List<JLabel> getDispatchLabelsList() {
+		return dispatchLabelsList;
+	}
+	/**
+	 * @return the arrivalLabelsList
+	 */
+	public List<JLabel> getArrivalLabelsList() {
+		return arrivalLabelsList;
+	}
+	/**
+	 * @return the lblElevatorcontinersize
+	 */
+	public JLabel getLblElevatorcontinersize() {
+		return lblElevatorcontinersize;
 	}
 }

@@ -1,4 +1,4 @@
-package com.epam.elevatortask.ui;
+package com.epam.elevatortask.ui.forms;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

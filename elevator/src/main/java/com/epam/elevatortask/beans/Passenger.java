@@ -2,13 +2,15 @@ package com.epam.elevatortask.beans;
 
 import java.util.Random;
 
+import com.epam.elevatortask.enums.Direction;
 import com.epam.elevatortask.enums.TransportationState;
 
 public class Passenger {
 	
-	private static int currentPassengerID = 1;
+	private static int passengerIDGenerator = 1;
 	private final int passengerID;
 	private final int destinationStory;
+	private final Direction direction;
 	private TransportationState transportationState = TransportationState.NOT_STARTED;
 
 	/**
@@ -17,8 +19,16 @@ public class Passenger {
 	 */
 	public Passenger(int initStory, int storiesNumber) {
 		super();
-		this.passengerID = currentPassengerID++;
+		this.passengerID = passengerIDGenerator++;
 		this.destinationStory = calculateDestinationStory(initStory, storiesNumber);
+		if (destinationStory < initStory){
+			direction = Direction.DOWN;
+		}else{
+			direction = Direction.UP;
+		}
+	}
+	public Direction getDirection(){
+		return direction;
 	}
 	private int calculateDestinationStory(int initStory, int storiesNumber){
 		Random random = new Random();

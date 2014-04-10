@@ -1,8 +1,8 @@
 package com.epam.elevatortask.ui;
 
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+import java.awt.EventQueue;
 
+import javax.swing.JTextArea;
 import org.apache.log4j.Layout;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
@@ -30,7 +30,7 @@ public class TextAreaAppender extends WriterAppender {
                 }
             }
             final String stackTrace = sb.toString();
-            SwingUtilities.invokeLater(new Runnable() {
+            EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     if (jTextArea != null) {
                         jTextArea.append(message);

@@ -10,18 +10,22 @@ import com.epam.elevatortask.beans.Building;
 import com.epam.elevatortask.beans.NumberedStoryContainer;
 import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.enums.TransportationState;
-import com.epam.elevatortask.ui.ElevatorFrame;
+import com.epam.elevatortask.interfaces.IElevatorPainter;
+import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.ElevatorPainter;
+import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
-public class Worker {
+public class Worker implements IElevatorWorker{
 	private static final Logger LOG = Logger.getLogger(Worker.class);
 	private final Building<Passenger> building;
 //	private int passengersNumber;
 	private ElevatorFrame elevatorFrame;
 	private ExecutorService threadPool;
 	private Controller controller;
-	public Worker(int storiesNumber, int passengersNumber, int elevatorCapacity){
+	private final int animationBoost;
+	public Worker(int storiesNumber, int passengersNumber, int elevatorCapacity, int animationBoost){
 		this.building = new Building<>(storiesNumber, elevatorCapacity);
+		this.animationBoost = animationBoost;
 //		this.passengersNumber = passengersNumber;
 		Random random = new Random();
 		for (int i = 0; i < passengersNumber; i++) {
@@ -48,8 +52,7 @@ public class Worker {
 	
 	public void startTransportation(){
 		if (elevatorFrame!=null){
-			ElevatorPainter elevatorPainter = new ElevatorPainter(elevatorFrame.getElevatorGrapthComponent()); 
-			elevatorPainter.startTimer();
+			IElevatorPainter elevatorPainter = new ElevatorPainter(elevatorFrame.getElevatorGrapthComponent(),animationBoost); 
 			controller.setElevatorPainter(elevatorPainter);
 		}
 		threadPool = Executors.newCachedThreadPool();

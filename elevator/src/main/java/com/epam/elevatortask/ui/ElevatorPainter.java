@@ -1,45 +1,120 @@
 package com.epam.elevatortask.ui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.awt.EventQueue;
 
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
-import org.apache.log4j.Logger;
+import com.epam.elevatortask.beans.Building;
+import com.epam.elevatortask.beans.Passenger;
+import com.epam.elevatortask.interfaces.IElevatorPainter;
+import com.epam.elevatortask.ui.components.ElevatorGrapthComponent;
+import com.epam.elevatortask.ui.components.ElevatorGrapthComponent.DoorState;
+import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
-import com.epam.elevatortask.ui.beans.ElevatorGrapthComponent;
-import com.epam.elevatortask.ui.beans.ElevatorPaintEvent;
-
-public class ElevatorPainter implements ActionListener{
-	private Queue<ElevatorPaintEvent> paintEvents = new ArrayDeque<>();
-	private Timer timer;
+public class ElevatorPainter implements IElevatorPainter{
 	private final ElevatorGrapthComponent elevatorGrapthComponent; 
-	public ElevatorPainter(ElevatorGrapthComponent elevatorGrapthComponent){
+	private final int delay;
+	public ElevatorPainter(ElevatorGrapthComponent elevatorGrapthComponent, int animationBoost){
 		this.elevatorGrapthComponent = elevatorGrapthComponent;
+		this.delay = 10000/animationBoost;
 	}
-	public void startTimer(){
-		timer = new Timer(30, this);
-		timer.start();
+	private void sleep(){
+		try {
+			Thread.sleep(delay);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
-	public synchronized void addEvent(ElevatorPaintEvent paintEvent){
-		paintEvents.add(paintEvent);
-	}
-	public synchronized ElevatorPaintEvent pollEvent(){
-		return paintEvents.poll();
+	public void paintElevatorArrival(final int currentStory){
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setCurrentStory(currentStory);
+				elevatorGrapthComponent.setDoorState(DoorState.CLOSED);
+				elevatorGrapthComponent.repaint();
+			}
+			
+		});
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setDoorState(DoorState.HALF_OPENED);
+				elevatorGrapthComponent.repaint();
+			}
+		});
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setDoorState(DoorState.OPENED);
+				elevatorGrapthComponent.repaint();
+			}
+		});
 	}
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		ElevatorPaintEvent event = pollEvent();
-		if (event!=null){
-			elevatorGrapthComponent.setCurrentStory(event.getCurrentStory());
-			elevatorGrapthComponent.setDoorState(event.getElevatorAction());
-			elevatorGrapthComponent.repaint();
-		}
-		ElevatorFrame elevatorFrame =  (ElevatorFrame) SwingUtilities.getRoot(elevatorGrapthComponent);
-		elevatorFrame.updateData();
+	public void paintElevatorDispatch(){
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setDoorState(DoorState.HALF_OPENED);
+				elevatorGrapthComponent.repaint();
+			}
+		});
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setDoorState(DoorState.CLOSED);
+				elevatorGrapthComponent.repaint();
+			}
+		});
 	}
+	@Override
+	public void paintDeboarding(final int currentStory, final Building<Passenger> building) {
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				ElevatorFrame elevatorFrame =  (ElevatorFrame) SwingUtilities.getRoot(elevatorGrapthComponent);
+				int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
+				int arrivalPassengers = building.getArrivalContainer(currentStory).getPassengersNumber();
+				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
+				elevatorFrame.getArrivalLabelsList().get(currentStory).setText(String.valueOf(arrivalPassengers));
+				elevatorGrapthComponent.setArrivalPassengers(arrivalPassengers);
+				elevatorGrapthComponent.setElevatorPassengers(elevatorPassengers);
+				elevatorGrapthComponent.repaint();
+				
+			}
+		});
+		
+		
+	}
+	@Override
+	public void paintBoarding(final int currentStory, final Building<Passenger> building) {
+		sleep();
+		EventQueue.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				ElevatorFrame elevatorFrame =  (ElevatorFrame) SwingUtilities.getRoot(elevatorGrapthComponent);
+				int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
+				int dispatchPassengers = building.getDispatchContainer(currentStory).getPassengersNumber();
+				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
+				elevatorFrame.getDispatchLabelsList().get(currentStory).setText(String.valueOf(dispatchPassengers));
+				elevatorGrapthComponent.setElevatorPassengers(elevatorPassengers);
+				elevatorGrapthComponent.setDispatchPassengers(dispatchPassengers);
+				elevatorGrapthComponent.repaint();	
+			}
+		});
+	}	
 }
