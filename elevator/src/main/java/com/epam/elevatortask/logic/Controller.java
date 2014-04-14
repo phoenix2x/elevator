@@ -1,14 +1,11 @@
 package com.epam.elevatortask.logic;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.log4j.Logger;
 
 import com.epam.elevatortask.beans.Building;
 import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.beans.Container;
-import com.epam.elevatortask.enums.Direction;
-import com.epam.elevatortask.interfaces.IElevatorPainter;
+import com.epam.elevatortask.enums.ControllerActions;
 
 
 
@@ -17,109 +14,81 @@ public class Controller {
 	private static final Logger LOG = Logger.getLogger(Controller.class);
 	private final Building<Passenger> building;
 	private final int initialPassengerNumber;
-	private IElevatorPainter elevatorPainter;
-	private volatile AtomicInteger loop=new AtomicInteger();
-	private volatile AtomicInteger barrier = new AtomicInteger();
+	private final Elevator elevator;
+	private Presenter presenter;
+	private int loop;
+	private int barrier;
 	private int remainPassengersNumber;
-	private int currentStory = -1;
-	private Direction lastDirection = Direction.UP;
+	private int currentStory;
 	private Passenger bufferPassenger;
 	
 	public Controller(Building<Passenger> building, int passengersNumber) {
 		this.building = building;
 		this.initialPassengerNumber = passengersNumber;
 		this.remainPassengersNumber = passengersNumber;
+		this.presenter = new Presenter();
+		elevator = new Elevator(building.getStoriesNumber(), presenter);
 	}
 
 	
-	/**
-	 * @param elevatorPainter the elevatorPainter to set
-	 */
-	public void setElevatorPainter(IElevatorPainter elevatorPainter) {
-		this.elevatorPainter = elevatorPainter;
-	}
 	public int getInitialPassengersNumber(){
 		return initialPassengerNumber;
 	}
 
 	public void doWork(){
-		LOG.info("STARTING_TRANSPORTATION");
-		barrier.addAndGet(initialPassengerNumber);
-		while (remainPassengersNumber!=0) {
-			move();
-			elevatorPainter.paintElevatorArrival(currentStory);
-			deboard();
-			board();
-			elevatorPainter.paintElevatorDispatch();
+		LOG.info(ControllerActions.STARTING_TRANSPORTATION.getDescription());
+		synchronized (this) {
+			barrier = barrier + initialPassengerNumber;
 		}
-		
-	}
-	private void paint(){
-		
-	}
-	private synchronized void deboard(){
-		while (barrier.get()!=0) {
+		while (remainPassengersNumber != 0 && !Thread.currentThread().isInterrupted()) {
 			try {
-				this.wait();
+				deboard();
+				board();
+				currentStory = elevator.move();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Thread.currentThread().interrupt();
 			}
 		}
+	}
+	
+	private synchronized void deboard() throws InterruptedException{
+		while (barrier!=0 && !Thread.currentThread().isInterrupted()) {
+			this.wait();
+		}
 		notifyPassengersSetLoop(building.getElevatorContainer());
-		while (loop.get()!=0 || bufferPassenger!=null) {
-			
-		
-			while (bufferPassenger==null && loop.get()!=0) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		while ((loop!=0 || bufferPassenger!=null) && !Thread.currentThread().isInterrupted()) {
+			while (bufferPassenger==null && loop!=0 && !Thread.currentThread().isInterrupted()) {
+				this.wait();
 			}
 			if (bufferPassenger != null){
 				building.removeElevatorPassenger(bufferPassenger);
 				building.addArrivalPassenger(currentStory, bufferPassenger);
-				LOG.info("DEBOADING_OF_PASSENGER (passenger " + bufferPassenger.getPassengerID() + " on story-" + currentStory + ")");
+				presenter.deboardingPassenger(currentStory, bufferPassenger);
 				bufferPassenger = null;
 				remainPassengersNumber--;
-				elevatorPainter.paintDeboarding(currentStory, building);
 				this.notifyAll();
 			}
 		}
 	}
-	private synchronized void board(){
+	private synchronized void board() throws InterruptedException{
 		notifyPassengersSetLoop(building.getDispatchContainer(currentStory));
-		while (loop.get()!=0 || bufferPassenger!=null) {
-			
-			
-			while (bufferPassenger==null && loop.get()!=0) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		while ((loop!=0 || bufferPassenger!=null) && !Thread.currentThread().isInterrupted()) {
+			while (bufferPassenger==null && loop!=0 && !Thread.currentThread().isInterrupted()) {
+				this.wait();
 			}
 			if (bufferPassenger != null){
 				building.removeDispatchPassenger(currentStory, bufferPassenger);
 				building.addElevatorPassenger(bufferPassenger);
-				LOG.info("BOADING_OF_PASSENGER (passenger " + bufferPassenger.getPassengerID() + " on story-" + currentStory + ")");
+				presenter.boardingPassenger(currentStory, bufferPassenger);
 				bufferPassenger = null;
-				elevatorPainter.paintBoarding(currentStory, building);
 				this.notifyAll();
 			}
 		}
 	}
-	public synchronized boolean requestDeboard(Passenger passenger){
+	public synchronized boolean requestDeboard(Passenger passenger) throws InterruptedException{
 		if (passenger.getDestinationStory() == currentStory){
-			while (bufferPassenger!=null&&!Thread.currentThread().isInterrupted()) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+			while (bufferPassenger!=null && !Thread.currentThread().isInterrupted()) {
+				this.wait();
 			}
 			bufferPassenger = passenger;
 			decLoopNotify();
@@ -127,18 +96,13 @@ public class Controller {
 		}else{
 			decLoopNotify();
 			return false;
-		}
-		
+		}	
 	}
 	
-	public synchronized boolean requestBoard(Passenger passenger) {
-		if (passenger.getDirection().equals(calculateDirection())) {
-			while (bufferPassenger!=null&&!Thread.currentThread().isInterrupted()){
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+	public synchronized boolean requestBoard(Passenger passenger) throws InterruptedException{
+		if (passenger.getDirection().equals(elevator.getCurrentDirection())) {
+			while (bufferPassenger!=null && !Thread.currentThread().isInterrupted()){
+				this.wait();
 			}
 			if (!building.isElevatorFull()){
 				bufferPassenger = passenger;
@@ -149,7 +113,6 @@ public class Controller {
 				decLoopNotify();
 				return false;
 			}
-			
 		}else{
 			decLoopNotify();
 			return false;
@@ -159,54 +122,27 @@ public class Controller {
 	private void notifyPassengersSetLoop(Container<Passenger> storyContainer){
 		synchronized (storyContainer) {
 			storyContainer.notifyAll();
-			loop.set(storyContainer.getPassengersNumber());
+			loop = storyContainer.getPassengersNumber();
 		}
 	}
 	private void decLoopNotify(){
 		this.notifyAll();
-		loop.decrementAndGet();
+		loop--;
 	}
 	private void incBarrier(){
-		barrier.incrementAndGet();
+		barrier++;
 	}
 	public synchronized void decBarrier(){
 		this.notifyAll();
-		barrier.decrementAndGet();
-	}
-	/**
-	 * @return the currentFloor
-	 */
-	public int getCurrentStory() {
-		return currentStory;
-	}
-	private void move(){
-		Direction direction = calculateDirection();
-		int tmpStory = currentStory;
-		switch (direction) {
-		case UP:
-			goUp();
-			break;
-		case DOWN:
-			goDown();
-			break;
-		}
-		LOG.info("MOVING_ELEVATOR (from story-" + tmpStory + " to story-" + currentStory + ")");
-	}
-	private Direction calculateDirection() {
-		if (currentStory==0){
-			lastDirection = Direction.UP;	
-		}else{
-			if (currentStory==building.getStoriesNumber()-1){
-				lastDirection=Direction.DOWN;
-			}
-		}
-		return lastDirection;
-	}
-	private void goUp() {
-		currentStory++;
+		barrier--;
 	}
 
-	private void goDown() {
-		currentStory--;
+
+	/**
+	 * @param presenter the presenter to set
+	 */
+	public void setPresenter(Presenter presenter) {
+		this.presenter = presenter;
+		elevator.setPresenter(presenter);
 	}
 }

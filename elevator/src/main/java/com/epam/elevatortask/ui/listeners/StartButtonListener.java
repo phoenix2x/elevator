@@ -26,7 +26,7 @@ public class StartButtonListener implements ActionListener {
 		elevatorFrame.setButtonAbort();
 		new Thread(new Runnable() {
 			public void run() {
-				worker.startTransportation();
+				worker.startTransportationGUI();
 				EventQueue.invokeLater(new Runnable() {
 					
 					public void run() {

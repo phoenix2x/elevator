@@ -4,7 +4,7 @@
 <log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
 
     <appender name="FileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="Controller.log"/>
+        <param name="File" value="application.log"/>
         <param name="MaxFileSize" value="10MB"/>
         <param name="MaxBackupIndex" value="10"/>
         <param name="Encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
             <param name="ConversionPattern" value="%d{ISO8601} - %m%n"/>
         </layout>
     </appender>
-
+	
     <root>
         <priority value="INFO"/>
         <appender-ref ref="FileAppender"/>

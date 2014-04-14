@@ -21,35 +21,29 @@ public class TransportationTask implements Runnable {
 	}
 
 	public void run() {
-//		System.out.println("thread " + Thread.currentThread().getName() + " start. initFloor "
-//				+ dispatchStoryContainer.getStoryNumber() + " dest " + Passenger.this.getDestinationStory());
 		boolean operationSuccess = false;
-		synchronized (dispatchStoryContainer) {
-			controller.decBarrier();
-			while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
-				try {
+		try {
+			synchronized (dispatchStoryContainer) {
+				controller.decBarrier();
+				while (!operationSuccess && !Thread.currentThread().isInterrupted()) {
 					dispatchStoryContainer.wait();
 					operationSuccess = controller.requestBoard(passenger);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
 				}
 			}
-		}
-		operationSuccess = false;
-		synchronized (elevatorContainer) {
-			controller.decBarrier();
-			while (!operationSuccess&&!Thread.currentThread().isInterrupted()) {
-				try {
+			operationSuccess = false;
+			synchronized (elevatorContainer) {
+				controller.decBarrier();
+				while (!operationSuccess && !Thread.currentThread().isInterrupted()) {
 					elevatorContainer.wait();
 					operationSuccess = controller.requestDeboard(passenger);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
 				}
 			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
-		if (Thread.currentThread().isInterrupted()){
+		if (Thread.currentThread().isInterrupted()) {
 			passenger.setTransportationState(TransportationState.ABORTED);
-		}else{
+		} else {
 			passenger.setTransportationState(TransportationState.COMPLETED);
 		}
 	}

@@ -62,6 +62,19 @@ public class Passenger {
 	public void setTransportationState(TransportationState transportationState){
 		this.transportationState = transportationState;
 	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(passengerID).append(";").append(destinationStory).append(";");
+		if (direction != null)
+			builder.append(direction).append(";");
+		if (transportationState != null)
+			builder.append(transportationState);
+		return builder.toString();
+	}
 	
 
 	

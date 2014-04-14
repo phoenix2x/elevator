@@ -155,13 +155,6 @@ public class ElevatorFrame extends JFrame {
 		elevatorGrapthComponent.calculateStoriesSize();
 		contentPane.add(elevatorGrapthComponent);
 	}
-//	public void updateData(int elevatorPassengerNumber,int[] dispatchPassengerNumber, int[] arrivalPassengerNumber){
-//		lblElevatorcontinersize.setText(String.valueOf(worker.getElevatorContainer().getPassengersList().size()));
-//		for (int i = 0; i<dispatchLabelsList.size(); i++){
-//			dispatchLabelsList.get(i).setText(String.valueOf(worker.getDispatchStoryContainersList().get(i).getPassengersList().size()));
-//			arrivalLabelsList.get(i).setText(String.valueOf(worker.getArrivalStoryContainersList().get(i).getPassengersList().size()));
-//		}
-//	}
 	public JTextArea getJTextArea(){
 		return textArea;
 	}
@@ -170,17 +163,15 @@ public class ElevatorFrame extends JFrame {
 	}
 	public void setButtonAbort(){
 		btnStart.setText(ABORT);
-		ActionListener[] actionListeners = btnStart.getActionListeners();
-		if (actionListeners.length!=0){
-			btnStart.removeActionListener(actionListeners[0]);
+		for (ActionListener actionListener: btnStart.getActionListeners()){
+			btnStart.removeActionListener(actionListener);
 		}
 		btnStart.addActionListener(new AbortButtonListener(worker));	
 	}
 	public void setButtonFinish(){
 		btnStart.setText(FINISH);
-		ActionListener[] actionListeners = btnStart.getActionListeners();
-		if (actionListeners.length!=0){
-			btnStart.removeActionListener(actionListeners[0]);
+		for (ActionListener actionListener: btnStart.getActionListeners()){
+			btnStart.removeActionListener(actionListener);
 		}
 		btnStart.addActionListener(new FinishButtonListener());
 		btnStart.setEnabled(true);

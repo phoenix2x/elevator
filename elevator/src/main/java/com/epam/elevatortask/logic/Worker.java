@@ -3,12 +3,15 @@ package com.epam.elevatortask.logic;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
 import com.epam.elevatortask.beans.Building;
 import com.epam.elevatortask.beans.NumberedStoryContainer;
 import com.epam.elevatortask.beans.Passenger;
+import com.epam.elevatortask.config.ApplicationConfig;
+import com.epam.elevatortask.enums.ControllerActions;
 import com.epam.elevatortask.enums.TransportationState;
 import com.epam.elevatortask.interfaces.IElevatorPainter;
 import com.epam.elevatortask.interfaces.IElevatorWorker;
@@ -18,43 +21,43 @@ import com.epam.elevatortask.ui.forms.ElevatorFrame;
 public class Worker implements IElevatorWorker{
 	private static final Logger LOG = Logger.getLogger(Worker.class);
 	private final Building<Passenger> building;
-//	private int passengersNumber;
+	private Thread guiWorkerThread;
 	private ElevatorFrame elevatorFrame;
 	private ExecutorService threadPool;
 	private Controller controller;
 	private final int animationBoost;
-	public Worker(int storiesNumber, int passengersNumber, int elevatorCapacity, int animationBoost){
-		this.building = new Building<>(storiesNumber, elevatorCapacity);
-		this.animationBoost = animationBoost;
-//		this.passengersNumber = passengersNumber;
+	public Worker(ApplicationConfig applicationConfig){
+		this.building = new Building<>(applicationConfig.getStoriesNumber(), applicationConfig.getElevatorCapacity());
+		this.animationBoost = applicationConfig.getAnimationBoost();
 		Random random = new Random();
-		for (int i = 0; i < passengersNumber; i++) {
-			int initStory = random.nextInt(storiesNumber);
-			building.addDispatchPassenger(initStory, new Passenger(initStory, storiesNumber));
+		for (int i = 0; i < applicationConfig.getPassengersNumber(); i++) {
+			int initStory = random.nextInt(applicationConfig.getStoriesNumber());
+			building.addDispatchPassenger(initStory, new Passenger(initStory, applicationConfig.getStoriesNumber()));
 		}
-		controller = new Controller(building, passengersNumber);
+		controller = new Controller(building, applicationConfig.getPassengersNumber());
 	}
 	public Building<Passenger> getBuilding(){
 		return building;
 	}
-	/**
-	 * @return the passengersNumber
-	 */
-//	public int getPassengersNumber() {
-//		return passengersNumber;
-//	}
 	public void setFrame(ElevatorFrame elevatorFrame){
 		this.elevatorFrame = elevatorFrame;
 	}
 	public void abortTransportation(){
 		threadPool.shutdownNow();
+		guiWorkerThread.interrupt();
+	}
+	@Override
+	public void startTransportationGUI() {
+		guiWorkerThread = Thread.currentThread();
+		if (elevatorFrame!=null){
+			IElevatorPainter elevatorPainter = new ElevatorPainter(elevatorFrame, animationBoost);
+			GUIPresenter presenter = new GUIPresenter(elevatorPainter, building);
+			controller.setPresenter(presenter);
+		}
+		startTransportation();
 	}
 	
 	public void startTransportation(){
-		if (elevatorFrame!=null){
-			IElevatorPainter elevatorPainter = new ElevatorPainter(elevatorFrame.getElevatorGrapthComponent(),animationBoost); 
-			controller.setElevatorPainter(elevatorPainter);
-		}
 		threadPool = Executors.newCachedThreadPool();
 		for (int i = 0; i < building.getStoriesNumber(); i++) {
 			NumberedStoryContainer<Passenger> dispatchStoryContainer = building.getDispatchContainer(i);
@@ -64,7 +67,16 @@ public class Worker implements IElevatorWorker{
 		}
 		controller.doWork();
 		threadPool.shutdown();
-		validateResult();
+		try {
+			threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		if (!Thread.currentThread().isInterrupted()){
+			validateResult();
+		}else{
+			LOG.info(ControllerActions.ABORTING_TRANSPORTATION.getDescription());
+		}
 	}
 	public void validateResult(){
 		boolean result = true;
@@ -98,9 +110,6 @@ public class Worker implements IElevatorWorker{
 			result = false;
 		}
 		LOG.info("Test succed: " + result);
-		LOG.info("COMPLETION_TRANSPORTATION");
+		LOG.info(ControllerActions.COMPLETION_TRANSPORTATION.getDescription());
 	}
-//	public void printOnAbort(){
-//		controller.printOnAbort();
-//	}
 }

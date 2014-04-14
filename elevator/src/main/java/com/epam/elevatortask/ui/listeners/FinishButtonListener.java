@@ -3,7 +3,7 @@ package com.epam.elevatortask.ui.listeners;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -13,28 +13,25 @@ import com.epam.elevatortask.ui.forms.FileViewer;
 
 public class FinishButtonListener implements ActionListener {
 
-	private static final String LOG_FILENAME = "Controller.log";
+	private static final String LOG_FILENAME = "application.log";
 
 	public void actionPerformed(ActionEvent e) {
 		final JButton button = (JButton) e.getSource();
 		button.setEnabled(false);
+		final FileViewer fileViewer = new FileViewer();
 		new Thread(new Runnable() {	
 			@Override
 			public void run() {
-				FileViewer fileViewer = new FileViewer();
-				try {
-					fileViewer.getTextArea().read(new FileReader(LOG_FILENAME), null);
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				try (BufferedReader reader = new BufferedReader(new FileReader(LOG_FILENAME))){
+					fileViewer.getTextArea().read(reader, LOG_FILENAME);
+				} catch (IOException e) {
+					e.printStackTrace();
+					fileViewer.getTextArea().append(e.toString());
 				}
-				fileViewer.setVisible(true);
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						fileViewer.setVisible(true);
 						button.setEnabled(true);
 					}
 				});

@@ -22,22 +22,16 @@ public class AbortButtonListener implements ActionListener {
 		JButton button = (JButton) evt.getSource();
 		final ElevatorFrame elevatorFrame = (ElevatorFrame) SwingUtilities.getRoot(button);
 		button.setEnabled(false);
-		new Thread(new Runnable() {
-			
+		new Thread(new Runnable() {	
 			@Override
 			public void run() {
 				worker.abortTransportation();
-//				worker.printOnAbort();
-				
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						elevatorFrame.setButtonFinish();
 					}
 				});
-				
 			}
 		}).start();
-		
 	}
-
 }

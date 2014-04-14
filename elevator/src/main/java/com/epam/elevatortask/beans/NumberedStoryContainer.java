@@ -18,4 +18,16 @@ public class NumberedStoryContainer<T extends Passenger> extends Container<T>{
 	public int getStoryNumber() {
 		return storyNumber;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(storyNumber).append(";");
+		if (super.toString() != null)
+			builder.append(super.toString());
+		return builder.toString();
+	}
 }
