@@ -12,19 +12,20 @@ import com.epam.elevatortask.ui.TextAreaAppender;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 public class Runner {
-
+	
+	private static final String FILE_NAME = "config.property";
 	private static final String CONSOLE_APPENDER_LAYOUT = "%d{ISO8601} - %m%n";
 	private static final String TEXT_AREA_APPENDER_LAYOUT = "%m%n";
 
 	public static void main(String[] args) {
-		ApplicationConfig applicationConfig = new ApplicationConfig();
+		ApplicationConfig applicationConfig = new ApplicationConfig(FILE_NAME);
 		Worker worker = new Worker(applicationConfig);
-		if (applicationConfig.getAnimationBoost() == 0){
+		if (applicationConfig.getAnimationBoost() == 0) {
 			ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout(CONSOLE_APPENDER_LAYOUT));
 			Logger.getRootLogger().addAppender(consoleAppender);
-			worker.startTransportation();;
-		}else{
-			final ElevatorFrame frame = new ElevatorFrame(worker.getBuilding(),applicationConfig.getStoriesNumber(), worker, applicationConfig.getPassengersNumber());
+			worker.startTransportation();
+		} else {
+			final ElevatorFrame frame = new ElevatorFrame(worker.getBuilding(), applicationConfig.getStoriesNumber(), worker, applicationConfig.getPassengersNumber());
 			worker.setFrame(frame);
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
@@ -35,7 +36,7 @@ public class Runner {
 					}
 				}
 			});
-			Logger.getRootLogger().addAppender(new TextAreaAppender(frame.getJTextArea(),new PatternLayout(TEXT_AREA_APPENDER_LAYOUT)));
+			Logger.getRootLogger().addAppender(new TextAreaAppender(frame.getJTextArea(), new PatternLayout(TEXT_AREA_APPENDER_LAYOUT)));
 		}
 	}	
 }

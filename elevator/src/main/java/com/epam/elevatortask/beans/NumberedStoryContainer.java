@@ -1,7 +1,11 @@
 package com.epam.elevatortask.beans;
 
-
-public class NumberedStoryContainer<T extends Passenger> extends Container<T>{
+/**
+ * Class is a container for storing passengers. Also store number of floor.
+ *
+ * @param <T>
+ */
+public class NumberedStoryContainer<T extends Passenger> extends Container<T> {
 	private final int storyNumber;
 
 	/**
@@ -19,15 +23,18 @@ public class NumberedStoryContainer<T extends Passenger> extends Container<T>{
 		return storyNumber;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(storyNumber).append(";");
-		if (super.toString() != null)
+		if (super.toString() != null) {
 			builder.append(super.toString());
+		}
 		return builder.toString();
 	}
 }

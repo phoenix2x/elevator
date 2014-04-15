@@ -29,11 +29,12 @@ import java.awt.GridLayout;
 
 import javax.swing.SwingConstants;
 
+/**
+ * Main application frame.
+ *
+ */
 public class ElevatorFrame extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private static final String START = "Start";
 	private static final String ABORT = "Abort";
@@ -41,7 +42,7 @@ public class ElevatorFrame extends JFrame {
 	private final IElevatorWorker worker;
 	private JPanel contentPane;
 	private JTextArea textArea;
-	private JButton btnStart;
+	private JButton mainButton;
 	private ElevatorGrapthComponent elevatorGrapthComponent;
 	private JPanel panel;
 	private JScrollPane scrollPane_1;
@@ -56,13 +57,11 @@ public class ElevatorFrame extends JFrame {
 	private JLabel lblDispatch;
 	private JLabel lblTotal;
 	private JLabel lblTotalSize;
-	
-
 
 	/**
 	 * Create the frame.
 	 */
-	public ElevatorFrame(Building<Passenger> building,int storiesNumber, IElevatorWorker worker, int passengersNumber) {
+	public ElevatorFrame(Building<Passenger> building, int storiesNumber, IElevatorWorker worker, int passengersNumber) {
 		setTitle("Elevator");
 		this.worker = worker;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,83 +70,81 @@ public class ElevatorFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(496, 415, 510, 315);
 		contentPane.add(scrollPane);
-		
+
 		textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
-		
-		btnStart = new JButton(START);
-		btnStart.addActionListener(new StartButtonListener(worker));
-		btnStart.setBounds(184, 685, 129, 23);
-		contentPane.add(btnStart);
-		
+
+		mainButton = new JButton(START);
+		mainButton.addActionListener(new StartButtonListener(worker));
+		mainButton.setBounds(184, 685, 129, 23);
+		contentPane.add(mainButton);
+
 		panel = new JPanel();
 		panel.setBounds(496, 11, 510, 393);
 		contentPane.add(panel);
 		panel.setLayout(null);
-		
+
 		scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(10, 52, 240, 308);
 		panel.add(scrollPane_1);
-		
+
 		arrivalPanel = new JPanel();
 		scrollPane_1.setViewportView(arrivalPanel);
 		arrivalPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		
+
 		lblArrival = new JLabel("Arrival");
 		lblArrival.setHorizontalAlignment(SwingConstants.CENTER);
 		scrollPane_1.setColumnHeaderView(lblArrival);
-		
-		
-		
+
 		scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(260, 52, 240, 308);
 		panel.add(scrollPane_2);
-		
+
 		dispatchPanel = new JPanel();
 		scrollPane_2.setViewportView(dispatchPanel);
 		dispatchPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		
+
 		lblDispatch = new JLabel("Dispatch");
 		lblDispatch.setHorizontalAlignment(SwingConstants.CENTER);
 		scrollPane_2.setColumnHeaderView(lblDispatch);
-		
+
 		lblElevatorcontainer = new JLabel("ElevatorContainer");
 		lblElevatorcontainer.setBounds(44, 11, 162, 14);
 		panel.add(lblElevatorcontainer);
-		
+
 		lblElevatorcontinersize = new JLabel(String.valueOf(building.getElevatorContainer().getPassengersNumber()));
 		lblElevatorcontinersize.setBounds(216, 11, 284, 14);
 		panel.add(lblElevatorcontinersize);
-		
+
 		lblTotal = new JLabel("Total");
 		lblTotal.setBounds(44, 371, 102, 14);
 		panel.add(lblTotal);
-		
+
 		lblTotalSize = new JLabel(String.valueOf(passengersNumber));
 		lblTotalSize.setBounds(156, 371, 344, 14);
 		panel.add(lblTotalSize);
-		
+
 		int[] dispatchPassengers = new int[storiesNumber];
 		int[] arrivalPassengers = new int[storiesNumber];
-		for (int i=0; i < building.getStoriesNumber(); i++){
+		for (int i = 0; i < building.getStoriesNumber(); i++) {
 			dispatchPassengers[i] = building.getDispatchContainer(i).getPassengersNumber();
 			arrivalPassengers[i] = building.getArrivalContainer(i).getPassengersNumber();
-			
+
 			dispatchPanel.add(new JLabel("Story " + i));
 			arrivalPanel.add(new JLabel("Story " + i));
-			
+
 			JLabel newDispatchLabel = new JLabel(String.valueOf(dispatchPassengers[i]));
 			dispatchLabelsList.add(newDispatchLabel);
 			dispatchPanel.add(newDispatchLabel);
-			
+
 			JLabel newArrivalLabel = new JLabel(String.valueOf(arrivalPassengers[i]));
 			arrivalLabelsList.add(newArrivalLabel);
 			arrivalPanel.add(newArrivalLabel);
-		}		
+		}
 		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
 		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
 		elevatorGrapthComponent.setBackground(Color.WHITE);
@@ -155,43 +152,62 @@ public class ElevatorFrame extends JFrame {
 		elevatorGrapthComponent.calculateStoriesSize();
 		contentPane.add(elevatorGrapthComponent);
 	}
-	public JTextArea getJTextArea(){
+
+	/**
+	 * @return textArea
+	 */
+	public JTextArea getJTextArea() {
 		return textArea;
 	}
-	public ElevatorGrapthComponent getElevatorGrapthComponent(){
+
+	/**
+	 * @return elevatorGrapthComponent
+	 */
+	public ElevatorGrapthComponent getElevatorGrapthComponent() {
 		return elevatorGrapthComponent;
 	}
-	public void setButtonAbort(){
-		btnStart.setText(ABORT);
-		for (ActionListener actionListener: btnStart.getActionListeners()){
-			btnStart.removeActionListener(actionListener);
-		}
-		btnStart.addActionListener(new AbortButtonListener(worker));	
-	}
-	public void setButtonFinish(){
-		btnStart.setText(FINISH);
-		for (ActionListener actionListener: btnStart.getActionListeners()){
-			btnStart.removeActionListener(actionListener);
-		}
-		btnStart.addActionListener(new FinishButtonListener());
-		btnStart.setEnabled(true);
-	}
+
 	/**
 	 * @return the dispatchLabelsList
 	 */
 	public List<JLabel> getDispatchLabelsList() {
 		return dispatchLabelsList;
 	}
+
 	/**
 	 * @return the arrivalLabelsList
 	 */
 	public List<JLabel> getArrivalLabelsList() {
 		return arrivalLabelsList;
 	}
+
 	/**
 	 * @return the lblElevatorcontinersize
 	 */
 	public JLabel getLblElevatorcontinersize() {
 		return lblElevatorcontinersize;
+	}
+
+	/**
+	 * change main button function to abort
+	 */
+	public void setButtonAbort() {
+		mainButton.setText(ABORT);
+		for (ActionListener actionListener : mainButton.getActionListeners()) {
+			mainButton.removeActionListener(actionListener);
+		}
+		mainButton.addActionListener(new AbortButtonListener(worker));
+	}
+
+	/**
+	 * change main button function to finish
+	 */
+	public void setButtonFinish() {
+		mainButton.setText(FINISH);
+		for (ActionListener actionListener : mainButton.getActionListeners()) {
+			mainButton.removeActionListener(actionListener);
+		}
+		mainButton.addActionListener(new FinishButtonListener());
+		mainButton.setEnabled(true);
 	}
 }

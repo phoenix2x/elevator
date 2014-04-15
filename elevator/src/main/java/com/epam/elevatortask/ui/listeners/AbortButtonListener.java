@@ -10,19 +10,27 @@ import javax.swing.SwingUtilities;
 import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
+/**
+ * Listener receive abort action event from main frame. 
+ *
+ */
 public class AbortButtonListener implements ActionListener {
 	private final IElevatorWorker worker;
-	
-	public AbortButtonListener(IElevatorWorker worker){
+
+	public AbortButtonListener(IElevatorWorker worker) {
 		this.worker = worker;
 	}
 
+	/*
+	 * Try to abort transportation process through worker.stopTransportation
+	 * method. Also invoke elevatorFrame.setButtonFinish method.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		JButton button = (JButton) evt.getSource();
 		final ElevatorFrame elevatorFrame = (ElevatorFrame) SwingUtilities.getRoot(button);
 		button.setEnabled(false);
-		new Thread(new Runnable() {	
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				worker.abortTransportation();

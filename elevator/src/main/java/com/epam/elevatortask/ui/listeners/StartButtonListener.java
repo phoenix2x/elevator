@@ -10,6 +10,10 @@ import javax.swing.SwingUtilities;
 import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
+/**
+ * Listener receive start action event from main frame.
+ *
+ */
 public class StartButtonListener implements ActionListener {
 	private final IElevatorWorker worker;
 	/**

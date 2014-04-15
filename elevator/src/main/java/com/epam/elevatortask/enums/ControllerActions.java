@@ -8,10 +8,15 @@ public enum ControllerActions {
 	BOADING_OF_PASSENGER("Boarding passenger"),
 	DEBOADING_OF_PASSENGER("Deboarding passenger");
 	private final String description;
-	ControllerActions(String description){
+	
+	private ControllerActions(String description) {
 		this.description = description;
 	}
-	public String getDescription(){
+	
+	/**
+	 * @return description
+	 */
+	public String getDescription() {
 		return description;
 	}
 }

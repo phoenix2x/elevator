@@ -5,13 +5,17 @@ import java.util.Random;
 import com.epam.elevatortask.enums.Direction;
 import com.epam.elevatortask.enums.TransportationState;
 
+/**
+ * Class store passenger data.
+ *
+ */
 public class Passenger {
-	
+
 	private static int passengerIDGenerator = 1;
 	private final int passengerID;
 	private final int destinationStory;
 	private final Direction direction;
-	private TransportationState transportationState = TransportationState.NOT_STARTED;
+	private TransportationState transportationState;
 
 	/**
 	 * @param initStory
@@ -21,22 +25,19 @@ public class Passenger {
 		super();
 		this.passengerID = passengerIDGenerator++;
 		this.destinationStory = calculateDestinationStory(initStory, storiesNumber);
-		if (destinationStory < initStory){
+		transportationState = TransportationState.NOT_STARTED;
+		if (destinationStory < initStory) {
 			direction = Direction.DOWN;
-		}else{
+		} else {
 			direction = Direction.UP;
 		}
 	}
-	public Direction getDirection(){
+
+	/**
+	 * @return passenger direction
+	 */
+	public Direction getDirection() {
 		return direction;
-	}
-	private int calculateDestinationStory(int initStory, int storiesNumber){
-		Random random = new Random();
-		int destinationStory = random.nextInt(storiesNumber);
-		while (destinationStory==initStory) {
-			destinationStory = random.nextInt(storiesNumber);
-		}
-		return destinationStory;	
 	}
 
 	/**
@@ -59,23 +60,39 @@ public class Passenger {
 	public int getDestinationStory() {
 		return destinationStory;
 	}
-	public void setTransportationState(TransportationState transportationState){
+
+	/**
+	 * @param transportationState
+	 *            to set
+	 */
+	public void setTransportationState(TransportationState transportationState) {
 		this.transportationState = transportationState;
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(passengerID).append(";").append(destinationStory).append(";");
-		if (direction != null)
+		if (direction != null) {
 			builder.append(direction).append(";");
-		if (transportationState != null)
+		}
+		if (transportationState != null) {
 			builder.append(transportationState);
+		}
 		return builder.toString();
 	}
-	
 
-	
+	private int calculateDestinationStory(int initStory, int storiesNumber) {
+		Random random = new Random();
+		int destinationStory = random.nextInt(storiesNumber);
+		while (destinationStory == initStory) {
+			destinationStory = random.nextInt(storiesNumber);
+		}
+		return destinationStory;
+	}
 }

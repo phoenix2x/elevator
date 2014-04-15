@@ -11,18 +11,23 @@ import javax.swing.JButton;
 
 import com.epam.elevatortask.ui.forms.FileViewer;
 
+/**
+ * Listener receive open log action event from main frame, and open log file content in fileViewer frame.
+ *
+ */
 public class FinishButtonListener implements ActionListener {
 
 	private static final String LOG_FILENAME = "application.log";
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		final JButton button = (JButton) e.getSource();
 		button.setEnabled(false);
 		final FileViewer fileViewer = new FileViewer();
-		new Thread(new Runnable() {	
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try (BufferedReader reader = new BufferedReader(new FileReader(LOG_FILENAME))){
+				try (BufferedReader reader = new BufferedReader(new FileReader(LOG_FILENAME))) {
 					fileViewer.getTextArea().read(reader, LOG_FILENAME);
 				} catch (IOException e) {
 					e.printStackTrace();
