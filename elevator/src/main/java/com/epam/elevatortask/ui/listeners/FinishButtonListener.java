@@ -12,7 +12,7 @@ import javax.swing.JButton;
 import com.epam.elevatortask.ui.forms.FileViewer;
 
 /**
- * Listener receive open log action event from main frame, and open log file content in fileViewer frame.
+ * Listener receives open log action event from main frame, and opens log file content in fileViewer frame.
  *
  */
 public class FinishButtonListener implements ActionListener {

@@ -8,7 +8,7 @@ import com.epam.elevatortask.beans.Container;
 import com.epam.elevatortask.enums.ControllerActions;
 
 /**
- * Class represent controller of the elevator. Provides synchronized methods for
+ * Class represents controller of the elevator. Provides synchronized methods for
  * transportation tasks, and method which start transportation process.
  * Synchronization is performed on instance of that class, and on instances of containers(elevator and dispatch).
  * 
@@ -47,7 +47,7 @@ public class Controller {
 	}
 
 	/**
-	 * @return initial passenger number for validating purpose.
+	 * @return initial number of passengers for validation purposes.
 	 */
 	public int getInitialPassengersNumber() {
 		return initialPassengerNumber;
@@ -74,7 +74,7 @@ public class Controller {
 
 	/**
 	 * Synchronized method. Transportation task threads reported achieving
-	 * specific position.
+	 * particular position.
 	 */
 	public synchronized void decBarrier() {
 		this.notifyAll();
@@ -82,7 +82,7 @@ public class Controller {
 	}
 
 	/**
-	 * Synchronized method. Transportation task threads ask controller for
+	 * Synchronized method. Transportation task threads asks controller for
 	 * deboarding.
 	 * 
 	 * @param passenger
@@ -94,7 +94,7 @@ public class Controller {
 			while (bufferPassenger != null && !Thread.currentThread().isInterrupted()) {
 				this.wait();
 			}
-			// Ask controller to deboard passenger by putting him in buffer.
+			// Asks the controller to deboard passenger, putting it in the buffer.
 			bufferPassenger = passenger;
 			decLoopNotify();
 			return true;
@@ -105,7 +105,7 @@ public class Controller {
 	}
 
 	/**
-	 * Synchronized method. Transportation task threads ask controller for
+	 * Synchronized method. Transportation task threads asks controller for
 	 * boarding.
 	 * 
 	 * @param passenger
@@ -118,7 +118,7 @@ public class Controller {
 				this.wait();
 			}
 			if (!building.isElevatorFull()) {
-				// Ask controller to board passenger by putting him in buffer.
+				// Asks the controller to board passenger, putting it in the buffer.
 				bufferPassenger = passenger;
 				decLoopNotify();
 				incBarrier();
@@ -134,7 +134,7 @@ public class Controller {
 	}
 
 	/**
-	 * Synchronized method. Controller thread perform deboarding of passengers.
+	 * Synchronized method. Controller thread performs deboarding of passengers.
 	 * 
 	 * @throws InterruptedException
 	 */
@@ -147,7 +147,7 @@ public class Controller {
 		// Notify transportation tasks and calculate their number in given
 		// container.
 		notifyPassengersSetLoop(building.getElevatorContainer());
-		// Perform passengers deboarding.
+		// Performs passengers deboarding.
 		while ((loop != 0 || bufferPassenger != null) && !Thread.currentThread().isInterrupted()) {
 			while (bufferPassenger == null && loop != 0 && !Thread.currentThread().isInterrupted()) {
 				this.wait();
@@ -155,7 +155,7 @@ public class Controller {
 			if (bufferPassenger != null) {
 				building.removeElevatorPassenger(bufferPassenger);
 				building.addArrivalPassenger(currentStory, bufferPassenger);
-				// Log controller action and inform elevatorForm in GUI mode.
+				// Log controllers action and informs elevatorForm in GUI mode.
 				presenter.deboardingPassenger(currentStory, bufferPassenger);
 				bufferPassenger = null;
 				remainPassengersNumber--;
@@ -165,7 +165,7 @@ public class Controller {
 	}
 
 	/**
-	 * Synchronized method. Controller thread perform boarding of passengers.
+	 * Synchronized method. Controller thread performs boarding of passengers.
 	 * 
 	 * @throws InterruptedException
 	 */
@@ -173,7 +173,7 @@ public class Controller {
 		// Notify transportation tasks and calculate their number in given
 		// container.
 		notifyPassengersSetLoop(building.getDispatchContainer(currentStory));
-		// Perform passengers boarding.
+		// Performs passengers boarding.
 		while ((loop != 0 || bufferPassenger != null) && !Thread.currentThread().isInterrupted()) {
 			while (bufferPassenger == null && loop != 0 && !Thread.currentThread().isInterrupted()) {
 				this.wait();
@@ -181,7 +181,7 @@ public class Controller {
 			if (bufferPassenger != null) {
 				building.removeDispatchPassenger(currentStory, bufferPassenger);
 				building.addElevatorPassenger(bufferPassenger);
-				// Log controller action and inform elevatorForm in GUI mode.
+				// Log controllers actions and informs elevatorForm in GUI mode.
 				presenter.boardingPassenger(currentStory, bufferPassenger);
 				bufferPassenger = null;
 				this.notifyAll();
@@ -190,8 +190,8 @@ public class Controller {
 	}
 
 	/**
-	 * Controller notify transportation tasks waited on specified monitor. Also
-	 * calculate number of them.
+	 * Controller notifies transportation tasks waiting on specified monitor. Also
+	 * calculates their number.
 	 * 
 	 * @param storyContainer
 	 */
@@ -203,8 +203,8 @@ public class Controller {
 	}
 
 	/**
-	 * Transportation task threads decrement number of remained threads in
-	 * current working circle. And wake up waiting threads.
+	 * Transportation task threads decrements number of remained threads in
+	 * current working circle. Also evokes waiting threads.
 	 */
 	private void decLoopNotify() {
 		this.notifyAll();
@@ -212,8 +212,8 @@ public class Controller {
 	}
 
 	/**
-	 * Transportation task threads increment barrier. Controller thread will
-	 * wait until they do not reduce it again, after reaching a certain
+	 * Transportation task threads increments barrier. Controller thread will
+	 * wait until they did not reduce it again, after reaching a certain
 	 * position.
 	 */
 	private void incBarrier() {

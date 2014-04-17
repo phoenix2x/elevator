@@ -11,7 +11,7 @@ import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 /**
- * Listener receive start action event from main frame.
+ * Listener receives start action event from main frame.
  *
  */
 public class StartButtonListener implements ActionListener {
@@ -23,7 +23,10 @@ public class StartButtonListener implements ActionListener {
 		super();
 		this.worker = worker;
 	}
-
+	/*
+	 * Tries to start transportation process through worker.startTransportationGUI
+	 * method. Also invokes elevatorFrame.setButtonFinish method.
+	 */
 	public void actionPerformed(ActionEvent evt) {
 		JButton button = (JButton) evt.getSource();
 		final ElevatorFrame elevatorFrame = (ElevatorFrame) SwingUtilities.getRoot(button);

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class stores passengers containers. And provides methods for managing them.
- *
+ * Class stores containers of passengers and provides methods for managing them.
+ * 
  * @param <T>
  */
 public class Building<T extends Passenger> {
@@ -41,7 +41,7 @@ public class Building<T extends Passenger> {
 
 	/**
 	 * @param storyNumber
-	 * @return dispatch container from that story
+	 * @return dispatch container from that floor
 	 */
 	public NumberedStoryContainer<T> getDispatchContainer(int storyNumber) {
 		return dispatchStoryContainersList.get(storyNumber);
@@ -49,7 +49,7 @@ public class Building<T extends Passenger> {
 
 	/**
 	 * @param storyNumber
-	 * @return arrival container from that story
+	 * @return arrival container from that floor
 	 */
 	public NumberedStoryContainer<T> getArrivalContainer(int storyNumber) {
 		return arrivalStoryContainersList.get(storyNumber);
@@ -63,7 +63,7 @@ public class Building<T extends Passenger> {
 	}
 
 	/**
-	 * @return true if number of passengers in elevatorContainer =
+	 * @return true if number of passengers in elevatorContainer equals
 	 *         elevatorCapacity.
 	 */
 	public boolean isElevatorFull() {
@@ -73,7 +73,7 @@ public class Building<T extends Passenger> {
 	/**
 	 * @param storyNumber
 	 * @param t
-	 *            Add passenger to dispatch container on specified story.
+	 *            Add a passenger in a dispatch container on the specified floor
 	 */
 	public void addDispatchPassenger(int storyNumber, T t) {
 		dispatchStoryContainersList.get(storyNumber).add(t);
@@ -82,7 +82,7 @@ public class Building<T extends Passenger> {
 	/**
 	 * @param storyNumber
 	 * @param t
-	 *            Add passenger to arrival container on specified story.
+	 *            Add a passenger in a arrival container on the specified floor
 	 */
 	public void addArrivalPassenger(int storyNumber, T t) {
 		arrivalStoryContainersList.get(storyNumber).add(t);
@@ -90,7 +90,7 @@ public class Building<T extends Passenger> {
 
 	/**
 	 * @param t
-	 *            Add passenger to elevator container.
+	 *            Add passenger in a elevator container.
 	 */
 	public void addElevatorPassenger(T t) {
 		elevatorContainer.add(t);

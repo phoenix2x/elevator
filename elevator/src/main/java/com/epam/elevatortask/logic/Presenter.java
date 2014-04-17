@@ -6,7 +6,7 @@ import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.enums.ControllerActions;
 
 /**
- * Class provide methods to log transportation process.
+ * Class provides methods to log transportation process.
  * 
  */
 public class Presenter {

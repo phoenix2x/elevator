@@ -8,7 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
- * Frame display log file content.
+ * Frame displays log file content.
  *
  */
 public class FileViewer extends JFrame {

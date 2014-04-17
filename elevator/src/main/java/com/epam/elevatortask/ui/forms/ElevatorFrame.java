@@ -189,7 +189,7 @@ public class ElevatorFrame extends JFrame {
 	}
 
 	/**
-	 * change main button function to abort
+	 * Change main button function to abort
 	 */
 	public void setButtonAbort() {
 		mainButton.setText(ABORT);
@@ -200,7 +200,7 @@ public class ElevatorFrame extends JFrame {
 	}
 
 	/**
-	 * change main button function to finish
+	 * Change main button function to finish
 	 */
 	public void setButtonFinish() {
 		mainButton.setText(FINISH);

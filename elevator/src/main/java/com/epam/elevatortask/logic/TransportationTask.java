@@ -6,8 +6,8 @@ import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.enums.TransportationState;
 
 /**
- * Class represent passenger transportation task. Calls controller synchronized
- * methods to perform transportation process.
+ * Class represents passengers transportation task. Calls controller
+ * synchronized methods to perform transportation process.
  * 
  */
 public class TransportationTask implements Runnable {
@@ -32,15 +32,15 @@ public class TransportationTask implements Runnable {
 	}
 
 	/*
-	 * Perform transportation task.
+	 * Performs transportation task.
 	 */
 	public void run() {
 		boolean operationSuccess = false;
 		try {
-			// Synchronized block for boarding purpose.
+			// Synchronized block for boarding purposes.
 			synchronized (dispatchStoryContainer) {
-				// Decrement barrier that allow controller to proceed after all
-				// transportation task threads arrived to that position.
+				// Decrements barrier that allow controller to proceed after all
+				// transportation task threads arrive to that position.
 				controller.decBarrier();
 				while (!operationSuccess && !Thread.currentThread().isInterrupted()) {
 					dispatchStoryContainer.wait();
@@ -48,10 +48,10 @@ public class TransportationTask implements Runnable {
 				}
 			}
 			operationSuccess = false;
-			// Synchronized block for deboarding purpose.
+			// Synchronized block for deboarding purposes.
 			synchronized (elevatorContainer) {
-				// Decrement barrier that allow controller to proceed after all
-				// affected transportation task threads arrived to that
+				// Decrements barrier that allow controller to proceed after all
+				// affected transportation task threads arrive to that
 				// position.
 				controller.decBarrier();
 				while (!operationSuccess && !Thread.currentThread().isInterrupted()) {

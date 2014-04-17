@@ -4,7 +4,7 @@ import com.epam.elevatortask.enums.Direction;
 
 /**
  * Class calculates and stores the current floor and direction of the elevator.
- * Also paint elevator movement through given presenter.
+ * Also draws elevator movement through given presenter.
  * 
  */
 public class Elevator {
@@ -40,7 +40,7 @@ public class Elevator {
 	}
 
 	/**
-	 * Tell elevator to move to next story
+	 * Tells elevator to move to the next floor
 	 * 
 	 * @return story number after move
 	 * @throws InterruptedException
@@ -61,7 +61,7 @@ public class Elevator {
 	}
 
 	/**
-	 * Calculate direction of next move
+	 * Calculates direction of next move.
 	 */
 	private void calculateDirection() {
 		if (currentStory == 0) {

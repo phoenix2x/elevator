@@ -8,7 +8,7 @@ import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Appends log events to given JTextArea.
+ * Appends logging events to given JTextArea.
  *
  */
 public class TextAreaAppender extends WriterAppender {

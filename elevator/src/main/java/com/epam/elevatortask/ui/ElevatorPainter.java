@@ -12,7 +12,7 @@ import com.epam.elevatortask.ui.components.ElevatorGrapthComponent;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 /**
- * Class update data on elevatorForm in GUI mode.
+ * Class updates data on elevatorForm in GUI mode.
  *
  */
 public class ElevatorPainter implements IElevatorPainter {
@@ -20,6 +20,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	private final ElevatorGrapthComponent elevatorGrapthComponent;
 	private final ElevatorFrame elevatorFrame;
 	private final int delay;
+	private final int elevatorDelay;
 	private Timer timer;
 
 	/**
@@ -30,6 +31,7 @@ public class ElevatorPainter implements IElevatorPainter {
 		this.elevatorFrame = elevatorFrame;
 		this.elevatorGrapthComponent = elevatorFrame.getElevatorGrapthComponent();
 		this.delay = MAX_ANIMATION_BOOST / animationBoost;
+		this.elevatorDelay = delay/10;
 	}
 
 	/*
@@ -39,7 +41,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.interfaces.IElevatorPainter#paintElevatorArrival()
 	 */
 	@Override
-	public void paintElevatorArrival() throws InterruptedException {
+	public void drawElevatorArrival() throws InterruptedException {
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
@@ -49,15 +51,20 @@ public class ElevatorPainter implements IElevatorPainter {
 				if (elevatorGrapthComponent.isDoorSizeMax()) {
 					timer.stop();
 					synchronized (this) {
-						this.notify();
+						this.notifyAll();
 					}
 				}
 			}
 		};
-		timer = new Timer(delay, actionListener);
-		timer.start();
+		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
-			actionListener.wait();
+			timer.start();
+			try{
+				actionListener.wait();
+			}catch(InterruptedException e){
+				timer.stop();
+				throw e;
+			}
 		}
 	}
 
@@ -68,7 +75,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.interfaces.IElevatorPainter#paintElevatorMove(int)
 	 */
 	@Override
-	public void paintElevatorMove(int currentStory) throws InterruptedException {
+	public void drawElevatorMove(int currentStory) throws InterruptedException {
 		elevatorGrapthComponent.setCurrentStory(currentStory);
 		ActionListener actionListener = new ActionListener() {
 
@@ -79,15 +86,20 @@ public class ElevatorPainter implements IElevatorPainter {
 				if (elevatorGrapthComponent.isElevatorOnStory()) {
 					timer.stop();
 					synchronized (this) {
-						this.notify();
+						this.notifyAll();
 					}
 				}
 			}
 		};
-		timer = new Timer(delay, actionListener);
-		timer.start();
+		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
-			actionListener.wait();
+			timer.start();
+			try{
+				actionListener.wait();
+			}catch(InterruptedException e){
+				timer.stop();
+				throw e;
+			}
 		}
 
 	}
@@ -99,7 +111,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.interfaces.IElevatorPainter#paintElevatorDispatch()
 	 */
 	@Override
-	public void paintElevatorDispatch() throws InterruptedException {
+	public void drawElevatorDispatch() throws InterruptedException {
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
@@ -109,15 +121,20 @@ public class ElevatorPainter implements IElevatorPainter {
 				if (elevatorGrapthComponent.isDoorSizeMin()) {
 					timer.stop();
 					synchronized (this) {
-						this.notify();
+						this.notifyAll();
 					}
 				}
 			}
 		};
-		timer = new Timer(delay, actionListener);
-		timer.start();
+		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
-			actionListener.wait();
+			timer.start();
+			try{
+				actionListener.wait();
+			}catch(InterruptedException e){
+				timer.stop();
+				throw e;
+			}
 		}
 	}
 
@@ -129,7 +146,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.beans.Building)
 	 */
 	@Override
-	public void paintDeboarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
+	public void drawDeboarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
@@ -145,17 +162,25 @@ public class ElevatorPainter implements IElevatorPainter {
 				if (elevatorGrapthComponent.isArrivalPassengerOffsetDef()) {
 					timer.stop();
 					elevatorGrapthComponent.setArrivalPassengerOffsetToDefault();
+					elevatorGrapthComponent.changeMovingArrivalFlag();
 					synchronized (this) {
-						this.notify();
+						this.notifyAll();
 					}
 				}
 			}
 		};
 		timer = new Timer(delay, actionListener);
-		elevatorGrapthComponent.setArrivalPassengerOffsetToMin();
-		timer.start();
+		elevatorGrapthComponent.changeMovingArrivalFlag();
+		elevatorGrapthComponent.newImageIterator();
+//		elevatorGrapthComponent.setArrivalPassengerOffsetToMin();
 		synchronized (actionListener) {
-			actionListener.wait();
+			timer.start();
+			try{
+				actionListener.wait();
+			}catch(InterruptedException e){
+				timer.stop();
+				throw e;
+			}
 		}
 	}
 
@@ -166,7 +191,7 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.beans.Building)
 	 */
 	@Override
-	public void paintBoarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
+	public void drawBoarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
@@ -182,16 +207,24 @@ public class ElevatorPainter implements IElevatorPainter {
 				if (elevatorGrapthComponent.isDispatchPassengerOffsetZero()) {
 					timer.stop();
 					elevatorGrapthComponent.clearBoardingOffset();
+					elevatorGrapthComponent.changeMovingDispatchFlag();
 					synchronized (this) {
-						this.notify();
+						this.notifyAll();
 					}
 				}
 			}
 		};
+		elevatorGrapthComponent.changeMovingDispatchFlag();
+		elevatorGrapthComponent.newImageIterator();
 		timer = new Timer(delay, actionListener);
-		timer.start();
 		synchronized (actionListener) {
-			actionListener.wait();
+			timer.start();
+			try{
+				actionListener.wait();
+			}catch(InterruptedException e){
+				timer.stop();
+				throw e;
+			}
 		}
 	}
 }

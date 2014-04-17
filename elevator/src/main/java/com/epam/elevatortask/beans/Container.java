@@ -14,7 +14,7 @@ public class Container<T extends Passenger> implements Iterable<T> {
 
 	/**
 	 * @param t
-	 *            add passenger to container
+	 *            add passenger in a container
 	 */
 	public void add(T t) {
 		passengersList.add(t);

@@ -1,7 +1,7 @@
 package com.epam.elevatortask.beans;
 
 /**
- * Class is a container for storing passengers. Also store number of floor.
+ * Class is a container for storing passengers. Also store the number of floors.
  *
  * @param <T>
  */

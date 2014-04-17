@@ -5,7 +5,7 @@ import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.interfaces.IElevatorPainter;
 
 /**
- * Class provide methods to update elevatorForm in GUI mode. Also calls superclass methods to log process.
+ * Class provides methods to update elevatorForm in GUI mode. Also calls superclass methods to log process.
  *
  */
 public class GUIPresenter extends Presenter {
@@ -20,20 +20,20 @@ public class GUIPresenter extends Presenter {
 	@Override
 	public void movingElevator(int oldStory, int currentStory) throws InterruptedException {
 		super.movingElevator(oldStory, currentStory);
-		elevatorPainter.paintElevatorDispatch();
-		elevatorPainter.paintElevatorMove(currentStory);
-		elevatorPainter.paintElevatorArrival();
+		elevatorPainter.drawElevatorDispatch();
+		elevatorPainter.drawElevatorMove(currentStory);
+		elevatorPainter.drawElevatorArrival();
 	}
 
 	@Override
 	public void deboardingPassenger(int currentStory, Passenger currentPassenger) throws InterruptedException {
 		super.deboardingPassenger(currentStory, currentPassenger);
-		elevatorPainter.paintDeboarding(currentStory, building);
+		elevatorPainter.drawDeboarding(currentStory, building);
 	}
 
 	@Override
 	public void boardingPassenger(int currentStory, Passenger currentPassenger) throws InterruptedException {
 		super.boardingPassenger(currentStory, currentPassenger);
-		elevatorPainter.paintBoarding(currentStory, building);
+		elevatorPainter.drawBoarding(currentStory, building);
 	}
 }

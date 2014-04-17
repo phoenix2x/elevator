@@ -11,7 +11,7 @@ import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 /**
- * Listener receive abort action event from main frame. 
+ * Listener receives abort action event from main frame. 
  *
  */
 public class AbortButtonListener implements ActionListener {
@@ -22,8 +22,8 @@ public class AbortButtonListener implements ActionListener {
 	}
 
 	/*
-	 * Try to abort transportation process through worker.stopTransportation
-	 * method. Also invoke elevatorFrame.setButtonFinish method.
+	 * Tries to abort transportation process through worker.stopTransportation
+	 * method. Also invokes elevatorFrame.setButtonFinish method.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent evt) {

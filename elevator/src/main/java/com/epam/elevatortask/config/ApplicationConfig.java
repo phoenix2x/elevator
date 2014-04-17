@@ -8,7 +8,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 /**
- * Class parse, check and store input parameters from given property file.
+ * Class parses, validates and stores the input parameters from the given property file.
  *
  */
 public class ApplicationConfig {
@@ -37,19 +37,19 @@ public class ApplicationConfig {
 			properties.load(bufferedReader);
 			storiesNumber = Integer.valueOf(properties.getProperty(STORIES_NUMBER, String.valueOf(DEF_STORIES_NUMBER)));
 			if (storiesNumber < 1) {
-				LOG.error("Stories number must be a positive non-zero. Using defaults");
+				LOG.error("Stories number must be positive nonzero. Using defaults");
 				storiesNumber = DEF_STORIES_NUMBER;
 			}
 			passengersNumber = Integer.valueOf(properties.getProperty(PASSENGERS_NUMBER,
 					String.valueOf(DEF_PASSENGERS_NUMBER)));
 			if (passengersNumber < 1) {
-				LOG.error("Pussengers number must be a positive non-zero. Using defaults");
+				LOG.error("Pussengers number must be positive nonzero. Using defaults");
 				passengersNumber = DEF_PASSENGERS_NUMBER;
 			}
 			elevatorCapacity = Integer.valueOf(properties.getProperty(ELEVATOR_CAPACITY,
 					String.valueOf(DEF_ELEVATOR_CAPACITY)));
 			if (elevatorCapacity < 1) {
-				LOG.error("Elevator capacity must be a positive non-zero. Using defaults");
+				LOG.error("Elevator capacity must be positive nonzero. Using defaults");
 				elevatorCapacity = DEF_ELEVATOR_CAPACITY;
 			}
 			animationBoost = Integer.valueOf(properties.getProperty(ANIMATION_BOOST,

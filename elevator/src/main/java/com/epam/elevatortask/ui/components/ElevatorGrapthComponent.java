@@ -3,20 +3,30 @@ package com.epam.elevatortask.ui.components;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Ellipse2D;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 /**
- * Component to draw transportation process.
+ * Component for drawing transportation process.
  *
  */
 public class ElevatorGrapthComponent extends JComponent {
 	private static final long serialVersionUID = 1L;
+	private static final int IMAGES_NUMBER = 16;
 
 	private final int storiesNumber;
 	private final int[] dispatchPassengers;
 	private final int[] arrivalPassengers;
+	private ArrayList<Image> imageList = new ArrayList<>();
+	private Iterator<Image> imageIterator;
+	private boolean movingDispatchFlag = false;
+	private boolean movungArrivalFlag = false;
 	private int doorSizeMax;
 	private int doorSizeMin;
 	private int doorSize;
@@ -29,6 +39,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	private int elevatorPassengerNumberOffset;
 	private int defaultDispatchPassengerOffset;
 	private int defaultArrivalPassengerOffset;
+	private int constantArrivalPassengerOffset;
 	private int size;
 	private int currentStory;
 	
@@ -42,6 +53,17 @@ public class ElevatorGrapthComponent extends JComponent {
 		this.storiesNumber = storiesNumber;
 		this.dispatchPassengers = dispatchPassengers;
 		this.arrivalPassengers = arrivalPassengers;
+		try {
+			for (int i = 1; i <= IMAGES_NUMBER; i++){
+				this.imageList.add(ImageIO.read(getClass().getResourceAsStream("/img/bender_walk" + i + ".png")));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void newImageIterator(){
+		imageIterator = imageList.iterator();
 	}
 
 	/**
@@ -77,7 +99,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	/**
-	 * Calculate stories size depending on stories number. Also set defaults.
+	 * Calculates stories size depending on stories number. Also sets defaults.
 	 */
 	public void calculateStoriesSize() {
 		size = getHeight() / storiesNumber;
@@ -85,10 +107,14 @@ public class ElevatorGrapthComponent extends JComponent {
 		doorSizeMin = size / 10;
 		doorSize = doorSizeMax;
 		currentElevatorHeight = getHeight() - (currentStory + 1) * size;
-		defaultDispatchPassengerOffset = size / 3;
+		defaultDispatchPassengerOffset = size / 2;
 		defaultArrivalPassengerOffset = size / 2;
+		constantArrivalPassengerOffset = size / 4;
 		setArrivalPassengerOffsetToDefault();
 		setDispatchPassengerOffsetToDefault();
+		for (int i =0; i < imageList.size(); i++){
+			imageList.set(i, imageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
+		}
 	}
 
 	public void incDoorSize() {
@@ -122,7 +148,11 @@ public class ElevatorGrapthComponent extends JComponent {
 	public void setBoardingOffset() {
 		dispatchPassengerNumberOffset = 1;
 		elevatorPassengerNumberOffset = -1;
-		passengerDispatchOffset--;
+		if (size/(2*IMAGES_NUMBER) > 1){
+			passengerDispatchOffset -= size/(2*IMAGES_NUMBER);
+		}else{
+			passengerDispatchOffset--;
+		}
 	}
 
 	public void clearBoardingOffset() {
@@ -132,7 +162,11 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	public void incArrivalPassengerOffset() {
-		passengerArrivalOffset++;
+		if (size/(2*IMAGES_NUMBER) > 1){
+			passengerArrivalOffset += size/(2*IMAGES_NUMBER);
+		}else{
+			passengerArrivalOffset++;
+		}
 	}
 
 	public boolean isDispatchPassengerOffsetZero() {
@@ -140,7 +174,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	public boolean isArrivalPassengerOffsetDef() {
-		return passengerArrivalOffset >= defaultArrivalPassengerOffset;
+		return passengerArrivalOffset >= defaultArrivalPassengerOffset + size /2;
 	}
 
 	public void setDispatchPassengerOffsetToDefault() {
@@ -151,8 +185,11 @@ public class ElevatorGrapthComponent extends JComponent {
 		passengerArrivalOffset = defaultArrivalPassengerOffset;
 	}
 
-	public void setArrivalPassengerOffsetToMin() {
-		passengerArrivalOffset = defaultArrivalPassengerOffset - size / 3;
+	public void changeMovingDispatchFlag(){
+		movingDispatchFlag = !movingDispatchFlag;
+	}
+	public void changeMovingArrivalFlag(){
+		movungArrivalFlag = !movungArrivalFlag;
 	}
 
 	/*
@@ -171,44 +208,72 @@ public class ElevatorGrapthComponent extends JComponent {
 			int currentHeight = getHeight() - (i + 1) * size;
 			drawElevator(currentHeight, g);
 			drawStory(currentHeight, g);
-			if (i == currentStory) {
-				drawDispatchPassengers(currentHeight, (Graphics2D) g, dispatchPassengers[i]
+			if (i == currentStory && movungArrivalFlag){
+				drawMovingArrivalPassengers(currentHeight, (Graphics2D) g, arrivalPassengers[i]
+						+ arrivalPassengerNumberOffset, constantArrivalPassengerOffset + passengerArrivalOffset);
+			} else {
+				drawArrivalPassengers(currentHeight, (Graphics2D) g, arrivalPassengers[i],
+						constantArrivalPassengerOffset + defaultArrivalPassengerOffset);
+			}
+			if (i == currentStory && movingDispatchFlag) {
+				drawMovingDispatchPassengers(currentHeight, (Graphics2D) g, dispatchPassengers[i]
 						+ dispatchPassengerNumberOffset, passengerDispatchOffset);
-				drawArrivalPassengers(currentHeight, (Graphics2D) g, arrivalPassengers[i]
-						+ arrivalPassengerNumberOffset, passengerArrivalOffset);
 			} else {
 				drawDispatchPassengers(currentHeight, (Graphics2D) g, dispatchPassengers[i],
 						defaultDispatchPassengerOffset);
-				drawArrivalPassengers(currentHeight, (Graphics2D) g, arrivalPassengers[i],
-						defaultArrivalPassengerOffset);
 			}
 		}
 		drawElevatorDoors(currentElevatorHeight, g, doorSize);
 	}
-
+	private void drawMovingDispatchPassengers(int currentHeight, Graphics2D g2, int numberPassengers,int currentPassengerOffset) {
+		Image currentImage = null;
+		if (!imageIterator.hasNext()){
+			newImageIterator();
+		}
+		currentImage = imageIterator.next();
+		for (int i = 0; i < numberPassengers; i++) {
+			drawMovingImagePassenger(getWidth() / 2 + currentPassengerOffset + i * size / 2, currentHeight,
+					size , g2, currentImage);
+		}
+	}
+	private void drawMovingArrivalPassengers(int currentHeight, Graphics2D g2, int numberPassengers,int currentPassengerOffset) {
+		Image currentImage = null;
+		if (!imageIterator.hasNext()){
+			newImageIterator();
+		}
+		currentImage = imageIterator.next();
+		for (int i = 0; i < numberPassengers; i++) {
+			drawMovingImagePassenger(getWidth() / 2 - currentPassengerOffset - i * size / 2, currentHeight,
+					size , g2, currentImage);
+		}
+	}
 	private void drawDispatchPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
 			int currentPassengerOffset) {
-		for (int i = 1; i <= numberPassengers; i++) {
-			drawPassenger(getWidth() / 2 + currentPassengerOffset + i * size / 3, currentHeight + size / 3,
-					size * 2 / 3, g2);
+		for (int i = 0; i < numberPassengers; i++) {
+			drawImagePassenger(getWidth() / 2 + currentPassengerOffset + i * size / 2, currentHeight,
+					size , g2);
 		}
 	}
 
 	private void drawArrivalPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
 			int currentPassengerOffset) {
 		for (int i = 1; i <= numberPassengers; i++) {
-			drawPassenger(getWidth() / 2 - currentPassengerOffset - i * size / 3, currentHeight + size / 3,
-					size * 2 / 3, g2);
+			drawImagePassenger(getWidth() / 2 - currentPassengerOffset - i * size / 2, currentHeight, size, g2);
 		}
 	}
 
 	private void drawElevatorPassengers(int currentHeight, Graphics2D g2, int numberPassengers) {
-		int maxElevatorPassengers = (numberPassengers < 7 ? numberPassengers : 7);
+		int maxElevatorPassengers = (numberPassengers < 6 ? numberPassengers : 6);
 		for (int i = 1; i <= maxElevatorPassengers; i++) {
-			drawPassenger(getWidth() / 2 - size / 2 + i * size / 10, currentHeight + size / 3, size * 2 / 3, g2);
+			drawImagePassenger(getWidth() / 2 - size * 9 / 10 + i * size / 10, currentHeight, size, g2);
 		}
 	}
-
+	private void drawMovingImagePassenger(int x, int y, int height, Graphics2D g2, Image currentImage) {
+		g2.drawImage(currentImage, x, y, null);
+	}
+	private void drawImagePassenger(int x, int y, int height, Graphics2D g2) {
+		g2.drawImage(imageList.get(imageList.size()-1), x, y, null);
+	}
 	private void drawPassenger(int x, int y, int height, Graphics2D g2) {
 		int width = height / 3;
 		g2.draw(new Ellipse2D.Double(x + width / 4, y, width / 2, height / 6));

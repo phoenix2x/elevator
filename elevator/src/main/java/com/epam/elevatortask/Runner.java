@@ -27,6 +27,7 @@ public class Runner {
 		} else {
 			final ElevatorFrame frame = new ElevatorFrame(worker.getBuilding(), applicationConfig.getStoriesNumber(), worker, applicationConfig.getPassengersNumber());
 			worker.setFrame(frame);
+			Logger.getRootLogger().addAppender(new TextAreaAppender(frame.getJTextArea(), new PatternLayout(TEXT_AREA_APPENDER_LAYOUT)));
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					try {
@@ -36,7 +37,6 @@ public class Runner {
 					}
 				}
 			});
-			Logger.getRootLogger().addAppender(new TextAreaAppender(frame.getJTextArea(), new PatternLayout(TEXT_AREA_APPENDER_LAYOUT)));
 		}
 	}	
 }

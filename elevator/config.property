@@ -1,4 +1,4 @@
 storiesNumber = 10
 elevatorCapacity = 10
 passengersNumber = 50
-animationBoost = 1000
+animationBoost = 300

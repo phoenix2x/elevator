@@ -10,37 +10,37 @@ public interface IElevatorPainter {
 	/**
 	 * @param currentStory
 	 * @throws InterruptedException
-	 *             Paint elevator move through elevator frame.
+	 *             Draws elevator movement through elevator frame
 	 */
-	void paintElevatorMove(final int currentStory) throws InterruptedException;
+	void drawElevatorMove(final int currentStory) throws InterruptedException;
 
 	/**
 	 * @throws InterruptedException
-	 *             Paint opening of elevator doors through elevator frame.
+	 *             Draws opening of elevator doors through elevator frame.
 	 */
-	void paintElevatorArrival() throws InterruptedException;
+	void drawElevatorArrival() throws InterruptedException;
 
 	/**
 	 * @throws InterruptedException
-	 *             Paint closing of elevator doors through elevator frame.
+	 *             Draws closing of elevator doors through elevator frame.
 	 */
-	void paintElevatorDispatch() throws InterruptedException;
-
-	/**
-	 * @param currentStory
-	 * @param building
-	 * @throws InterruptedException
-	 *             Paint passenger move during deboarding through elevator frame.
-	 *             Update another information on frame.
-	 */
-	void paintDeboarding(int currentStory, Building<Passenger> building) throws InterruptedException;
+	void drawElevatorDispatch() throws InterruptedException;
 
 	/**
 	 * @param currentStory
 	 * @param building
 	 * @throws InterruptedException
-	 *             Paint passenger move during boarding through elevator frame.
-	 *             Update another information on frame.
+	 *             Draws passengers movement during deboarding through elevator frame.
+	 *             Updates other information on the frame.
 	 */
-	void paintBoarding(int currentStory, Building<Passenger> building) throws InterruptedException;
+	void drawDeboarding(int currentStory, Building<Passenger> building) throws InterruptedException;
+
+	/**
+	 * @param currentStory
+	 * @param building
+	 * @throws InterruptedException
+	 *             Draw passengers movement during boarding through elevator frame.
+	 *             Updates other information on the frame.
+	 */
+	void drawBoarding(int currentStory, Building<Passenger> building) throws InterruptedException;
 }

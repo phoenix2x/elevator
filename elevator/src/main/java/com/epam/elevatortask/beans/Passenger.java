@@ -6,7 +6,7 @@ import com.epam.elevatortask.enums.Direction;
 import com.epam.elevatortask.enums.TransportationState;
 
 /**
- * Class store passenger data.
+ * Class stores passenger data.
  *
  */
 public class Passenger {
