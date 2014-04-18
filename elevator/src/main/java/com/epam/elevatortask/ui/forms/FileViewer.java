@@ -1,6 +1,7 @@
 package com.epam.elevatortask.ui.forms;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -14,6 +15,7 @@ import javax.swing.JTextArea;
 public class FileViewer extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final String VIEW_LOG_FILE = "View log file";
 	private JPanel contentPane;
 	private JTextArea textArea;
 
@@ -21,7 +23,7 @@ public class FileViewer extends JFrame {
 	 * Create the frame.
 	 */
 	public FileViewer() {
-		setTitle("View log file");
+		setTitle(VIEW_LOG_FILE);
 		setBounds(100, 100, 1024, 768);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

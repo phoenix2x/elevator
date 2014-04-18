@@ -25,7 +25,7 @@ public class StartButtonListener implements ActionListener {
 	}
 	/*
 	 * Tries to start transportation process through worker.startTransportationGUI
-	 * method. Also invokes elevatorFrame.setButtonFinish method.
+	 * method. Also invokes elevatorFrame.setButtonFinish method after work finished.
 	 */
 	public void actionPerformed(ActionEvent evt) {
 		JButton button = (JButton) evt.getSource();

@@ -10,8 +10,8 @@ import com.epam.elevatortask.enums.Direction;
 public class Elevator {
 	private final int upperStory;
 	private Presenter presenter;
-	private int currentStory;
 	private Direction currentDirection;
+	private int currentStory;
 
 	/**
 	 * @param storiesNumber

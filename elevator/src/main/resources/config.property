@@ -1,0 +1,10 @@
+# Stories number must be positive nonzero. Stories number in GUI mode must be lesser than 300.
+# Recommended value in GUI mod: 5-10.
+storiesNumber = 10
+# Elevator capacity must be positive nonzero.
+elevatorCapacity = 10
+# Passengers number must be positive nonzero.
+passengersNumber = 50
+# Animation boost must be within range 0 - 10000. Warning, value above 1000 may cause heavy CPU usage.
+# Recommended value: 300.
+animationBoost = 300

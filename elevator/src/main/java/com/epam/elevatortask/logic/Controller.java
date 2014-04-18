@@ -16,13 +16,13 @@ import com.epam.elevatortask.enums.ControllerActions;
 public class Controller {
 	private static final Logger LOG = Logger.getLogger(Controller.class);
 	private final Building<Passenger> building;
-	private final int initialPassengerNumber;
 	private final Elevator elevator;
-	private Presenter presenter;
+	private final int initialPassengerNumber;
 	private int loop;
 	private int barrier;
 	private int remainPassengersNumber;
 	private int currentStory;
+	private Presenter presenter;
 	private Passenger bufferPassenger;
 
 	/**

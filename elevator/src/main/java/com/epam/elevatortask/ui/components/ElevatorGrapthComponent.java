@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.geom.Ellipse2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,16 +13,19 @@ import javax.swing.JComponent;
 
 /**
  * Component for drawing transportation process.
- *
+ * 
  */
 public class ElevatorGrapthComponent extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private static final int IMAGES_NUMBER = 16;
+	private static final String FILE_PATH = "/img/";
+	private static final String FILE_NAME = "bender_walk";
+	private static final String FILE_EXTENSION = ".png";
 
 	private final int storiesNumber;
 	private final int[] dispatchPassengers;
 	private final int[] arrivalPassengers;
-	private ArrayList<Image> imageList = new ArrayList<>();
+	private final ArrayList<Image> imageList;
 	private Iterator<Image> imageIterator;
 	private boolean movingDispatchFlag = false;
 	private boolean movungArrivalFlag = false;
@@ -40,30 +42,28 @@ public class ElevatorGrapthComponent extends JComponent {
 	private int defaultDispatchPassengerOffset;
 	private int defaultArrivalPassengerOffset;
 	private int constantArrivalPassengerOffset;
+	private int center;
 	private int size;
+	private int passengerWidth;
 	private int currentStory;
-	
+
 	/**
 	 * @param storiesNumber
 	 * @param dispatchPassengers
 	 * @param arrivalPassengers
+	 * @throws IOException
+	 * @throws IllegalArgumentException
 	 */
-	public ElevatorGrapthComponent(int storiesNumber, int[] dispatchPassengers, int[] arrivalPassengers) {
+	public ElevatorGrapthComponent(int storiesNumber, int[] dispatchPassengers, int[] arrivalPassengers)
+			throws IOException, IllegalArgumentException {
 		super();
+		this.imageList = new ArrayList<>();
 		this.storiesNumber = storiesNumber;
 		this.dispatchPassengers = dispatchPassengers;
 		this.arrivalPassengers = arrivalPassengers;
-		try {
-			for (int i = 1; i <= IMAGES_NUMBER; i++){
-				this.imageList.add(ImageIO.read(getClass().getResourceAsStream("/img/bender_walk" + i + ".png")));
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for (int i = 1; i <= IMAGES_NUMBER; i++) {
+			this.imageList.add(ImageIO.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
 		}
-	}
-	public void newImageIterator(){
-		imageIterator = imageList.iterator();
 	}
 
 	/**
@@ -75,34 +75,13 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	/**
-	 * @param dispatchPassengers
-	 *            the dispatchPassengers to set
+	 * Calculates stories size depending on stories number. Also sets defaults,
+	 * scales images.
 	 */
-	public void setDispatchPassengers(int dispatchPassengers) {
-		this.dispatchPassengers[currentStory] = dispatchPassengers;
-	}
-
-	/**
-	 * @param arrivalPassengers
-	 *            the arrivalPassengers to set
-	 */
-	public void setArrivalPassengers(int arrivalPassengers) {
-		this.arrivalPassengers[currentStory] = arrivalPassengers;
-	}
-
-	/**
-	 * @param elevatorPassengers
-	 *            the elevatorPassengers to set
-	 */
-	public void setElevatorPassengers(int elevatorPassengers) {
-		this.elevatorPassengers = elevatorPassengers;
-	}
-
-	/**
-	 * Calculates stories size depending on stories number. Also sets defaults.
-	 */
-	public void calculateStoriesSize() {
+	public void initialize() {
+		center = getWidth() / 2;
 		size = getHeight() / storiesNumber;
+		passengerWidth = size / 2 ;
 		doorSizeMax = size;
 		doorSizeMin = size / 10;
 		doorSize = doorSizeMax;
@@ -112,11 +91,9 @@ public class ElevatorGrapthComponent extends JComponent {
 		constantArrivalPassengerOffset = size / 4;
 		setArrivalPassengerOffsetToDefault();
 		setDispatchPassengerOffsetToDefault();
-		for (int i =0; i < imageList.size(); i++){
-			imageList.set(i, imageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
-		}
+		scaleImages();
 	}
-
+	
 	public void incDoorSize() {
 		doorSize++;
 	}
@@ -144,52 +121,50 @@ public class ElevatorGrapthComponent extends JComponent {
 			currentElevatorHeight--;
 		}
 	}
+	public void beforeDeboarding(int arrivalPassengers, int elevatorPassengers){
+		setArrivalPassengers(arrivalPassengers);
+		setElevatorPassengers(elevatorPassengers);
+		changeMovingArrivalFlag();
+		newImageIterator();
+	}
+	public void afterDeboarding(){
+		setArrivalPassengerOffsetToDefault();
+		changeMovingArrivalFlag();
+	}
+	public void beforeBoarding(int elevatorPassengers, int dispatchPassengers){
+		setElevatorPassengers(elevatorPassengers);
+		setDispatchPassengers(dispatchPassengers);
+		changeMovingDispatchFlag();
+		newImageIterator();
+		setBoardingOffset();
+	}
+	public void afterBoarding(){
+		clearBoardingOffset();
+		changeMovingDispatchFlag();
+	}
 
-	public void setBoardingOffset() {
-		dispatchPassengerNumberOffset = 1;
-		elevatorPassengerNumberOffset = -1;
-		if (size/(2*IMAGES_NUMBER) > 1){
-			passengerDispatchOffset -= size/(2*IMAGES_NUMBER);
-		}else{
+	public void decDispatchPassengerOffset() {
+		if (passengerWidth / IMAGES_NUMBER > 1) {
+			passengerDispatchOffset -= passengerWidth / IMAGES_NUMBER;
+		} else {
 			passengerDispatchOffset--;
 		}
 	}
 
-	public void clearBoardingOffset() {
-		dispatchPassengerNumberOffset = 0;
-		elevatorPassengerNumberOffset = 0;
-		setDispatchPassengerOffsetToDefault();
-	}
-
 	public void incArrivalPassengerOffset() {
-		if (size/(2*IMAGES_NUMBER) > 1){
-			passengerArrivalOffset += size/(2*IMAGES_NUMBER);
-		}else{
+		if (passengerWidth / IMAGES_NUMBER > 1) {
+			passengerArrivalOffset += passengerWidth / IMAGES_NUMBER;
+		} else {
 			passengerArrivalOffset++;
 		}
 	}
 
-	public boolean isDispatchPassengerOffsetZero() {
+	public boolean isBoardingComplete() {
 		return passengerDispatchOffset <= 0;
 	}
 
-	public boolean isArrivalPassengerOffsetDef() {
-		return passengerArrivalOffset >= defaultArrivalPassengerOffset + size /2;
-	}
-
-	public void setDispatchPassengerOffsetToDefault() {
-		passengerDispatchOffset = defaultDispatchPassengerOffset;
-	}
-
-	public void setArrivalPassengerOffsetToDefault() {
-		passengerArrivalOffset = defaultArrivalPassengerOffset;
-	}
-
-	public void changeMovingDispatchFlag(){
-		movingDispatchFlag = !movingDispatchFlag;
-	}
-	public void changeMovingArrivalFlag(){
-		movungArrivalFlag = !movungArrivalFlag;
+	public boolean isDeboardingComplete() {
+		return passengerArrivalOffset >= defaultArrivalPassengerOffset + passengerWidth;
 	}
 
 	/*
@@ -208,7 +183,7 @@ public class ElevatorGrapthComponent extends JComponent {
 			int currentHeight = getHeight() - (i + 1) * size;
 			drawElevator(currentHeight, g);
 			drawStory(currentHeight, g);
-			if (i == currentStory && movungArrivalFlag){
+			if (i == currentStory && movungArrivalFlag) {
 				drawMovingArrivalPassengers(currentHeight, (Graphics2D) g, arrivalPassengers[i]
 						+ arrivalPassengerNumberOffset, constantArrivalPassengerOffset + passengerArrivalOffset);
 			} else {
@@ -225,63 +200,60 @@ public class ElevatorGrapthComponent extends JComponent {
 		}
 		drawElevatorDoors(currentElevatorHeight, g, doorSize);
 	}
-	private void drawMovingDispatchPassengers(int currentHeight, Graphics2D g2, int numberPassengers,int currentPassengerOffset) {
+
+	private void drawMovingDispatchPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
+			int currentPassengerOffset) {
 		Image currentImage = null;
-		if (!imageIterator.hasNext()){
+		if (!imageIterator.hasNext()) {
 			newImageIterator();
 		}
 		currentImage = imageIterator.next();
 		for (int i = 0; i < numberPassengers; i++) {
-			drawMovingImagePassenger(getWidth() / 2 + currentPassengerOffset + i * size / 2, currentHeight,
-					size , g2, currentImage);
+			drawMovingImagePassenger(center + currentPassengerOffset + i * passengerWidth, currentHeight, size, g2,
+					currentImage);
 		}
 	}
-	private void drawMovingArrivalPassengers(int currentHeight, Graphics2D g2, int numberPassengers,int currentPassengerOffset) {
+
+	private void drawMovingArrivalPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
+			int currentPassengerOffset) {
 		Image currentImage = null;
-		if (!imageIterator.hasNext()){
+		if (!imageIterator.hasNext()) {
 			newImageIterator();
 		}
 		currentImage = imageIterator.next();
 		for (int i = 0; i < numberPassengers; i++) {
-			drawMovingImagePassenger(getWidth() / 2 - currentPassengerOffset - i * size / 2, currentHeight,
-					size , g2, currentImage);
+			drawMovingImagePassenger(center - currentPassengerOffset - i * passengerWidth, currentHeight, size, g2,
+					currentImage);
 		}
 	}
+
 	private void drawDispatchPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
 			int currentPassengerOffset) {
 		for (int i = 0; i < numberPassengers; i++) {
-			drawImagePassenger(getWidth() / 2 + currentPassengerOffset + i * size / 2, currentHeight,
-					size , g2);
+			drawImagePassenger(center + currentPassengerOffset + i * passengerWidth, currentHeight, size, g2);
 		}
 	}
 
 	private void drawArrivalPassengers(int currentHeight, Graphics2D g2, int numberPassengers,
 			int currentPassengerOffset) {
 		for (int i = 1; i <= numberPassengers; i++) {
-			drawImagePassenger(getWidth() / 2 - currentPassengerOffset - i * size / 2, currentHeight, size, g2);
+			drawImagePassenger(center - currentPassengerOffset - i * passengerWidth, currentHeight, size, g2);
 		}
 	}
 
 	private void drawElevatorPassengers(int currentHeight, Graphics2D g2, int numberPassengers) {
-		int maxElevatorPassengers = (numberPassengers < 6 ? numberPassengers : 6);
+		int maxElevatorPassengers = (numberPassengers < 7 ? numberPassengers : 7);
 		for (int i = 1; i <= maxElevatorPassengers; i++) {
-			drawImagePassenger(getWidth() / 2 - size * 9 / 10 + i * size / 10, currentHeight, size, g2);
+			drawImagePassenger(center - size * 9 / 10 + i * size / 10, currentHeight, size, g2);
 		}
 	}
+
 	private void drawMovingImagePassenger(int x, int y, int height, Graphics2D g2, Image currentImage) {
 		g2.drawImage(currentImage, x, y, null);
 	}
+
 	private void drawImagePassenger(int x, int y, int height, Graphics2D g2) {
-		g2.drawImage(imageList.get(imageList.size()-1), x, y, null);
-	}
-	private void drawPassenger(int x, int y, int height, Graphics2D g2) {
-		int width = height / 3;
-		g2.draw(new Ellipse2D.Double(x + width / 4, y, width / 2, height / 6));
-		g2.draw(new Ellipse2D.Double(x + width / 4, y + height / 6, width / 2, height / 2));
-		g2.drawLine(x, y + height / 2, x + width / 3, y + height / 5);
-		g2.drawLine(x + width, y + height / 2, x + width * 2 / 3, y + height / 5);
-		g2.drawLine(x, y + height, x + width / 2 - width / 7, y + height * 2 / 3);
-		g2.drawLine(x + width, y + height, x + width / 2 + width / 7, y + height * 2 / 3);
+		g2.drawImage(imageList.get(imageList.size() - 1), x, y, null);
 	}
 
 	private void drawStory(int currentHeight, Graphics g) {
@@ -289,14 +261,58 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	private void drawElevator(int currentHeight, Graphics g) {
-		g.drawRect(getWidth() / 2 - size / 2, currentHeight, size, size);
+		g.drawRect(center - size / 2, currentHeight, size, size);
 
 	}
 
 	private void drawElevatorDoors(int currentHeight, Graphics g, int doorSize) {
 		g.setColor(Color.GRAY);
-		g.fillRect(getWidth() / 2 - size / 2 + 1, currentHeight, size / 2 - doorSize / 2, size);
-		g.fillRect(getWidth() / 2 + doorSize / 2 + 1, currentHeight, size / 2 - doorSize / 2, size);
+		g.fillRect(center - size / 2 + 1, currentHeight, size / 2 - doorSize / 2, size);
+		g.fillRect(center + doorSize / 2 + 1, currentHeight, size / 2 - doorSize / 2, size);
 		g.setColor(Color.BLACK);
+	}
+
+	private void scaleImages() {
+		for (int i = 0; i < imageList.size(); i++) {
+			imageList.set(i, imageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
+		}
+	}
+	private void setDispatchPassengerOffsetToDefault() {
+		passengerDispatchOffset = defaultDispatchPassengerOffset;
+	}
+
+	private void setArrivalPassengerOffsetToDefault() {
+		passengerArrivalOffset = defaultArrivalPassengerOffset;
+	}
+
+	private void changeMovingDispatchFlag() {
+		movingDispatchFlag = !movingDispatchFlag;
+	}
+
+	private void changeMovingArrivalFlag() {
+		movungArrivalFlag = !movungArrivalFlag;
+	}
+	private void setBoardingOffset() {
+		dispatchPassengerNumberOffset = 1;
+		elevatorPassengerNumberOffset = -1;
+	}
+
+	private void clearBoardingOffset() {
+		dispatchPassengerNumberOffset = 0;
+		elevatorPassengerNumberOffset = 0;
+		setDispatchPassengerOffsetToDefault();
+	}
+	private void setDispatchPassengers(int dispatchPassengers) {
+		this.dispatchPassengers[currentStory] = dispatchPassengers;
+	}
+
+	private void setArrivalPassengers(int arrivalPassengers) {
+		this.arrivalPassengers[currentStory] = arrivalPassengers;
+	}
+	private void setElevatorPassengers(int elevatorPassengers) {
+		this.elevatorPassengers = elevatorPassengers;
+	}
+	private void newImageIterator() {
+		imageIterator = imageList.iterator();
 	}
 }

@@ -25,12 +25,22 @@ import com.epam.elevatortask.ui.forms.ElevatorFrame;
  */
 public class Worker implements IElevatorWorker {
 	private static final Logger LOG = Logger.getLogger(Worker.class);
+	private static final String TEST_SUCCED = "Test succed: ";
+	private static final String FINAL_NUMBER = ", final number ";
+	private static final String INITAL_NUMBER_PASSENGER = "Inital number passenger ";
+	private static final String TRANSPORTATION_STATE = " transportationState ";
+	private static final String DESTINATION_STORY = " destinationStory ";
+	private static final String PASSENGER2 = "Passenger ";
+	private static final String STORY = "Story ";
+	private static final String ELEVATOR_CONTAINER_SIZE = "ElevatorContainer size: ";
+	private static final String SIZE = " size: ";
+	private static final String DISPATCH_CONTAINER = "DispatchContainer ";
 	private final Building<Passenger> building;
+	private final int animationBoost;
 	private Thread guiWorkerThread;
 	private ElevatorFrame elevatorFrame;
 	private ExecutorService threadPool;
 	private Controller controller;
-	private final int animationBoost;
 
 	public Worker(ApplicationConfig applicationConfig) {
 		this.building = new Building<>(applicationConfig.getStoriesNumber(), applicationConfig.getElevatorCapacity());
@@ -118,23 +128,23 @@ public class Worker implements IElevatorWorker {
 		int currentDispatchPassengersNumber;
 		for (int i = 0; i < building.getStoriesNumber(); i++) {
 			currentDispatchPassengersNumber = building.getDispatchContainer(i).getPassengersNumber();
-			LOG.info("DispatchContainer " + i + " size: " + currentDispatchPassengersNumber);
+			LOG.info(DISPATCH_CONTAINER + i + SIZE + currentDispatchPassengersNumber);
 			if (currentDispatchPassengersNumber != 0) {
 				result = false;
 			}
 		}
 		currentDispatchPassengersNumber = building.getElevatorContainer().getPassengersNumber();
-		LOG.info("ElevatorContainer size: " + currentDispatchPassengersNumber);
+		LOG.info(ELEVATOR_CONTAINER_SIZE + currentDispatchPassengersNumber);
 		if (currentDispatchPassengersNumber != 0) {
 			result = false;
 		}
 		int passengerNumber = 0;
 		for (int i = 0; i < building.getStoriesNumber(); i++) {
-			LOG.info("Story " + i);
+			LOG.info(STORY + i);
 			for (Passenger passenger : building.getArrivalContainer(i)) {
 				passengerNumber++;
-				LOG.info("Passenger " + passenger.getPassengerID() + " destinationStory "
-						+ passenger.getDestinationStory() + " transportationState "
+				LOG.info(PASSENGER2 + passenger.getPassengerID() + DESTINATION_STORY
+						+ passenger.getDestinationStory() + TRANSPORTATION_STATE
 						+ passenger.getTransportationState());
 				if (passenger.getDestinationStory() != i
 						|| passenger.getTransportationState() != TransportationState.COMPLETED) {
@@ -143,11 +153,11 @@ public class Worker implements IElevatorWorker {
 			}
 		}
 		int initialPassengersNumber = controller.getInitialPassengersNumber();
-		LOG.info("Inital number passenger " + initialPassengersNumber + ", final number " + passengerNumber);
+		LOG.info(INITAL_NUMBER_PASSENGER + initialPassengersNumber + FINAL_NUMBER + passengerNumber);
 		if (initialPassengersNumber != passengerNumber) {
 			result = false;
 		}
-		LOG.info("Test succed: " + result);
+		LOG.info(TEST_SUCCED + result);
 		LOG.info(ControllerActions.COMPLETION_TRANSPORTATION.getDescription());
 	}
 }

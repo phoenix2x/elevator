@@ -12,9 +12,9 @@ import com.epam.elevatortask.enums.TransportationState;
 public class Passenger {
 
 	private static int passengerIDGenerator = 1;
+	private final Direction direction;
 	private final int passengerID;
 	private final int destinationStory;
-	private final Direction direction;
 	private TransportationState transportationState;
 
 	/**

@@ -26,16 +26,32 @@ import java.util.List;
 import javax.swing.JLabel;
 
 import java.awt.GridLayout;
+import java.io.IOException;
 
 import javax.swing.SwingConstants;
 
+import java.awt.Component;
+import java.awt.Dimension;
+
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+
+import java.awt.BorderLayout;
+
 /**
  * Main application frame.
- *
+ * 
  */
 public class ElevatorFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final String STORY = "Story ";
+	private static final String DISPATCH = "Dispatch";
+	private static final String ARRIVAL = "Arrival";
+	private static final String TOTAL = "Total";
+	private static final String ELEVATOR_CONTAINER = "ElevatorContainer";
+	private static final String ELEVATOR = "Elevator";
 	private static final String START = "Start";
 	private static final String ABORT = "Abort";
 	private static final String FINISH = "View log file";
@@ -57,85 +73,135 @@ public class ElevatorFrame extends JFrame {
 	private JLabel lblDispatch;
 	private JLabel lblTotal;
 	private JLabel lblTotalSize;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	private JPanel panel_3;
 
 	/**
 	 * Create the frame.
+	 * 
+	 * @throws IOException
 	 */
-	public ElevatorFrame(Building<Passenger> building, int storiesNumber, IElevatorWorker worker, int passengersNumber) {
-		setTitle("Elevator");
+	public ElevatorFrame(Building<Passenger> building, int storiesNumber, IElevatorWorker worker, int passengersNumber)
+			throws IOException, IllegalArgumentException {
+		setTitle(ELEVATOR);
 		this.worker = worker;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1024, 768);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(496, 415, 510, 315);
-		contentPane.add(scrollPane);
-
-		textArea = new JTextArea();
-		scrollPane.setViewportView(textArea);
 
 		mainButton = new JButton(START);
+		mainButton.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		mainButton.addActionListener(new StartButtonListener(worker));
-		mainButton.setBounds(184, 685, 129, 23);
-		contentPane.add(mainButton);
-
-		panel = new JPanel();
-		panel.setBounds(496, 11, 510, 393);
-		contentPane.add(panel);
-		panel.setLayout(null);
-
-		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(10, 52, 240, 308);
-		panel.add(scrollPane_1);
-
-		arrivalPanel = new JPanel();
-		scrollPane_1.setViewportView(arrivalPanel);
-		arrivalPanel.setLayout(new GridLayout(0, 2, 0, 0));
-
-		lblArrival = new JLabel("Arrival");
-		lblArrival.setHorizontalAlignment(SwingConstants.CENTER);
-		scrollPane_1.setColumnHeaderView(lblArrival);
-
-		scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(260, 52, 240, 308);
-		panel.add(scrollPane_2);
-
-		dispatchPanel = new JPanel();
-		scrollPane_2.setViewportView(dispatchPanel);
-		dispatchPanel.setLayout(new GridLayout(0, 2, 0, 0));
-
-		lblDispatch = new JLabel("Dispatch");
-		lblDispatch.setHorizontalAlignment(SwingConstants.CENTER);
-		scrollPane_2.setColumnHeaderView(lblDispatch);
-
-		lblElevatorcontainer = new JLabel("ElevatorContainer");
-		lblElevatorcontainer.setBounds(44, 11, 162, 14);
-		panel.add(lblElevatorcontainer);
-
-		lblElevatorcontinersize = new JLabel(String.valueOf(building.getElevatorContainer().getPassengersNumber()));
-		lblElevatorcontinersize.setBounds(216, 11, 284, 14);
-		panel.add(lblElevatorcontinersize);
-
-		lblTotal = new JLabel("Total");
-		lblTotal.setBounds(44, 371, 102, 14);
-		panel.add(lblTotal);
-
-		lblTotalSize = new JLabel(String.valueOf(passengersNumber));
-		lblTotalSize.setBounds(156, 371, 344, 14);
-		panel.add(lblTotalSize);
-
 		int[] dispatchPassengers = new int[storiesNumber];
 		int[] arrivalPassengers = new int[storiesNumber];
 		for (int i = 0; i < building.getStoriesNumber(); i++) {
 			dispatchPassengers[i] = building.getDispatchContainer(i).getPassengersNumber();
 			arrivalPassengers[i] = building.getArrivalContainer(i).getPassengersNumber();
+		}
+		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
+		elevatorGrapthComponent.setMinimumSize(new Dimension(540, 660));
+		elevatorGrapthComponent.setPreferredSize(new Dimension(540, 660));
+		elevatorGrapthComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
+		elevatorGrapthComponent.setAlignmentY(Component.TOP_ALIGNMENT);
+		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
+		elevatorGrapthComponent.setBackground(Color.WHITE);
+		elevatorGrapthComponent.setBounds(10, 10, 540, 660);
+		elevatorGrapthComponent.initialize();
 
-			dispatchPanel.add(new JLabel("Story " + i));
-			arrivalPanel.add(new JLabel("Story " + i));
+		panel = new JPanel();
+		panel.setLayout(new BorderLayout(0, 0));
+
+		JScrollPane scrollPane = new JScrollPane();
+
+		textArea = new JTextArea();
+		scrollPane.setViewportView(textArea);
+		GroupLayout gl_contentPane = new GroupLayout(contentPane);
+		gl_contentPane.setHorizontalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addGap(6)
+							.addComponent(elevatorGrapthComponent, GroupLayout.PREFERRED_SIZE, 540, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addGap(248)
+							.addComponent(mainButton)))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE))
+					.addContainerGap())
+		);
+		gl_contentPane.setVerticalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(elevatorGrapthComponent, GroupLayout.PREFERRED_SIZE, 660, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(mainButton))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 337, GroupLayout.PREFERRED_SIZE)))
+					.addGap(19))
+		);
+
+		panel_1 = new JPanel();
+		panel.add(panel_1, BorderLayout.NORTH);
+
+		lblElevatorcontainer = new JLabel(ELEVATOR_CONTAINER);
+		panel_1.add(lblElevatorcontainer);
+		lblElevatorcontainer.setAlignmentY(Component.TOP_ALIGNMENT);
+
+		lblElevatorcontinersize = new JLabel(String.valueOf(building.getElevatorContainer().getPassengersNumber()));
+		panel_1.add(lblElevatorcontinersize);
+
+		panel_2 = new JPanel();
+		panel.add(panel_2, BorderLayout.SOUTH);
+
+		lblTotal = new JLabel(TOTAL);
+		panel_2.add(lblTotal);
+
+		lblTotalSize = new JLabel(String.valueOf(passengersNumber));
+		panel_2.add(lblTotalSize);
+
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setPreferredSize(new Dimension(200, 200));
+		panel.add(scrollPane_1, BorderLayout.WEST);
+
+		arrivalPanel = new JPanel();
+		scrollPane_1.setViewportView(arrivalPanel);
+		arrivalPanel.setLayout(new GridLayout(0, 2, 0, 0));
+
+		lblArrival = new JLabel(ARRIVAL);
+		lblArrival.setHorizontalAlignment(SwingConstants.CENTER);
+		scrollPane_1.setColumnHeaderView(lblArrival);
+
+		scrollPane_2 = new JScrollPane();
+		scrollPane_2.setPreferredSize(new Dimension(200, 200));
+		panel.add(scrollPane_2, BorderLayout.EAST);
+
+		dispatchPanel = new JPanel();
+		scrollPane_2.setViewportView(dispatchPanel);
+		dispatchPanel.setLayout(new GridLayout(0, 2, 0, 0));
+
+		lblDispatch = new JLabel(DISPATCH);
+		lblDispatch.setHorizontalAlignment(SwingConstants.CENTER);
+		scrollPane_2.setColumnHeaderView(lblDispatch);
+
+		panel_3 = new JPanel();
+		panel_3.setPreferredSize(new Dimension(10, 200));
+		panel.add(panel_3, BorderLayout.CENTER);
+		contentPane.setLayout(gl_contentPane);
+
+		for (int i = 0; i < building.getStoriesNumber(); i++) {
+			dispatchPanel.add(new JLabel(STORY + i));
+			arrivalPanel.add(new JLabel(STORY + i));
 
 			JLabel newDispatchLabel = new JLabel(String.valueOf(dispatchPassengers[i]));
 			dispatchLabelsList.add(newDispatchLabel);
@@ -145,12 +211,6 @@ public class ElevatorFrame extends JFrame {
 			arrivalLabelsList.add(newArrivalLabel);
 			arrivalPanel.add(newArrivalLabel);
 		}
-		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
-		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
-		elevatorGrapthComponent.setBackground(Color.WHITE);
-		elevatorGrapthComponent.setBounds(10, 11, 476, 659);
-		elevatorGrapthComponent.calculateStoriesSize();
-		contentPane.add(elevatorGrapthComponent);
 	}
 
 	/**

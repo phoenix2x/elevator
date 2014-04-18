@@ -1,5 +1,6 @@
 package com.epam.elevatortask.ui;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,9 +14,10 @@ import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 /**
  * Class updates data on elevatorForm in GUI mode.
- *
+ * 
  */
 public class ElevatorPainter implements IElevatorPainter {
+	private static final int SCALE_DOOR_DELAY = 10;
 	private static final int MAX_ANIMATION_BOOST = 10000;
 	private final ElevatorGrapthComponent elevatorGrapthComponent;
 	private final ElevatorFrame elevatorFrame;
@@ -31,7 +33,7 @@ public class ElevatorPainter implements IElevatorPainter {
 		this.elevatorFrame = elevatorFrame;
 		this.elevatorGrapthComponent = elevatorFrame.getElevatorGrapthComponent();
 		this.delay = MAX_ANIMATION_BOOST / animationBoost;
-		this.elevatorDelay = delay/10;
+		this.elevatorDelay = delay / SCALE_DOOR_DELAY;
 	}
 
 	/*
@@ -59,9 +61,9 @@ public class ElevatorPainter implements IElevatorPainter {
 		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
 			timer.start();
-			try{
+			try {
 				actionListener.wait();
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				timer.stop();
 				throw e;
 			}
@@ -75,8 +77,15 @@ public class ElevatorPainter implements IElevatorPainter {
 	 * com.epam.elevatortask.interfaces.IElevatorPainter#paintElevatorMove(int)
 	 */
 	@Override
-	public void drawElevatorMove(int currentStory) throws InterruptedException {
-		elevatorGrapthComponent.setCurrentStory(currentStory);
+	public void drawElevatorMove(final int currentStory) throws InterruptedException {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				elevatorGrapthComponent.setCurrentStory(currentStory);
+
+			}
+		});
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
@@ -94,9 +103,9 @@ public class ElevatorPainter implements IElevatorPainter {
 		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
 			timer.start();
-			try{
+			try {
 				actionListener.wait();
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				timer.stop();
 				throw e;
 			}
@@ -129,9 +138,9 @@ public class ElevatorPainter implements IElevatorPainter {
 		timer = new Timer(elevatorDelay, actionListener);
 		synchronized (actionListener) {
 			timer.start();
-			try{
+			try {
 				actionListener.wait();
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				timer.stop();
 				throw e;
 			}
@@ -147,22 +156,26 @@ public class ElevatorPainter implements IElevatorPainter {
 	 */
 	@Override
 	public void drawDeboarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
+		final int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
+		final int arrivalPassengers = building.getArrivalContainer(currentStory).getPassengersNumber();
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
+				elevatorFrame.getArrivalLabelsList().get(currentStory).setText(String.valueOf(arrivalPassengers));
+				elevatorGrapthComponent.beforeDeboarding(arrivalPassengers, elevatorPassengers);
+			}
+		});
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
-				int arrivalPassengers = building.getArrivalContainer(currentStory).getPassengersNumber();
-				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
-				elevatorFrame.getArrivalLabelsList().get(currentStory).setText(String.valueOf(arrivalPassengers));
-				elevatorGrapthComponent.setArrivalPassengers(arrivalPassengers);
-				elevatorGrapthComponent.setElevatorPassengers(elevatorPassengers);
 				elevatorGrapthComponent.incArrivalPassengerOffset();
 				elevatorGrapthComponent.repaint();
-				if (elevatorGrapthComponent.isArrivalPassengerOffsetDef()) {
+				if (elevatorGrapthComponent.isDeboardingComplete()) {
 					timer.stop();
-					elevatorGrapthComponent.setArrivalPassengerOffsetToDefault();
-					elevatorGrapthComponent.changeMovingArrivalFlag();
+					elevatorGrapthComponent.afterDeboarding();
 					synchronized (this) {
 						this.notifyAll();
 					}
@@ -170,14 +183,11 @@ public class ElevatorPainter implements IElevatorPainter {
 			}
 		};
 		timer = new Timer(delay, actionListener);
-		elevatorGrapthComponent.changeMovingArrivalFlag();
-		elevatorGrapthComponent.newImageIterator();
-//		elevatorGrapthComponent.setArrivalPassengerOffsetToMin();
 		synchronized (actionListener) {
 			timer.start();
-			try{
+			try {
 				actionListener.wait();
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				timer.stop();
 				throw e;
 			}
@@ -192,36 +202,38 @@ public class ElevatorPainter implements IElevatorPainter {
 	 */
 	@Override
 	public void drawBoarding(final int currentStory, final Building<Passenger> building) throws InterruptedException {
+		final int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
+		final int dispatchPassengers = building.getDispatchContainer(currentStory).getPassengersNumber();
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
+				elevatorFrame.getDispatchLabelsList().get(currentStory).setText(String.valueOf(dispatchPassengers));
+				elevatorGrapthComponent.beforeBoarding(elevatorPassengers, dispatchPassengers);
+			}
+		});
 		ActionListener actionListener = new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int elevatorPassengers = building.getElevatorContainer().getPassengersNumber();
-				int dispatchPassengers = building.getDispatchContainer(currentStory).getPassengersNumber();
-				elevatorFrame.getLblElevatorcontinersize().setText(String.valueOf(elevatorPassengers));
-				elevatorFrame.getDispatchLabelsList().get(currentStory).setText(String.valueOf(dispatchPassengers));
-				elevatorGrapthComponent.setElevatorPassengers(elevatorPassengers);
-				elevatorGrapthComponent.setDispatchPassengers(dispatchPassengers);
-				elevatorGrapthComponent.setBoardingOffset();
+				elevatorGrapthComponent.decDispatchPassengerOffset();
 				elevatorGrapthComponent.repaint();
-				if (elevatorGrapthComponent.isDispatchPassengerOffsetZero()) {
+				if (elevatorGrapthComponent.isBoardingComplete()) {
 					timer.stop();
-					elevatorGrapthComponent.clearBoardingOffset();
-					elevatorGrapthComponent.changeMovingDispatchFlag();
+					elevatorGrapthComponent.afterBoarding();
 					synchronized (this) {
 						this.notifyAll();
 					}
 				}
 			}
 		};
-		elevatorGrapthComponent.changeMovingDispatchFlag();
-		elevatorGrapthComponent.newImageIterator();
 		timer = new Timer(delay, actionListener);
 		synchronized (actionListener) {
 			timer.start();
-			try{
+			try {
 				actionListener.wait();
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				timer.stop();
 				throw e;
 			}
