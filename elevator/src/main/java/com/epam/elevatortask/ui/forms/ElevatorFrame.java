@@ -12,6 +12,7 @@ import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.components.ElevatorGrapthComponent;
 import com.epam.elevatortask.ui.listeners.AbortButtonListener;
+import com.epam.elevatortask.ui.listeners.ElevatorComponentListener;
 import com.epam.elevatortask.ui.listeners.FinishButtonListener;
 import com.epam.elevatortask.ui.listeners.StartButtonListener;
 
@@ -104,12 +105,9 @@ public class ElevatorFrame extends JFrame {
 		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
 		elevatorGrapthComponent.setMinimumSize(new Dimension(540, 660));
 		elevatorGrapthComponent.setPreferredSize(new Dimension(540, 660));
-		elevatorGrapthComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
-		elevatorGrapthComponent.setAlignmentY(Component.TOP_ALIGNMENT);
 		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
 		elevatorGrapthComponent.setBackground(Color.WHITE);
-		elevatorGrapthComponent.setBounds(10, 10, 540, 660);
-		elevatorGrapthComponent.initialize();
+		elevatorGrapthComponent.addComponentListener(new ElevatorComponentListener(elevatorGrapthComponent));
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout(0, 0));
@@ -125,14 +123,14 @@ public class ElevatorFrame extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(6)
-							.addComponent(elevatorGrapthComponent, GroupLayout.PREFERRED_SIZE, 540, GroupLayout.PREFERRED_SIZE))
+							.addComponent(elevatorGrapthComponent, GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(248)
 							.addComponent(mainButton)))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
-						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE))
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
@@ -141,7 +139,7 @@ public class ElevatorFrame extends JFrame {
 					.addContainerGap()
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(elevatorGrapthComponent, GroupLayout.PREFERRED_SIZE, 660, GroupLayout.PREFERRED_SIZE)
+							.addComponent(elevatorGrapthComponent, GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
 							.addGap(18)
 							.addComponent(mainButton))
 						.addGroup(gl_contentPane.createSequentialGroup()

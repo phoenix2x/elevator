@@ -26,9 +26,11 @@ public class ElevatorGrapthComponent extends JComponent {
 	private final int[] dispatchPassengers;
 	private final int[] arrivalPassengers;
 	private final ArrayList<Image> imageList;
+	private final ArrayList<Image> nonscaledImageList;
 	private Iterator<Image> imageIterator;
 	private boolean movingDispatchFlag = false;
 	private boolean movungArrivalFlag = false;
+	private boolean firstRun = true;
 	private int doorSizeMax;
 	private int doorSizeMin;
 	private int doorSize;
@@ -58,10 +60,13 @@ public class ElevatorGrapthComponent extends JComponent {
 			throws IOException, IllegalArgumentException {
 		super();
 		this.imageList = new ArrayList<>();
+		this.nonscaledImageList = new ArrayList<>();
 		this.storiesNumber = storiesNumber;
 		this.dispatchPassengers = dispatchPassengers;
 		this.arrivalPassengers = arrivalPassengers;
 		for (int i = 1; i <= IMAGES_NUMBER; i++) {
+			this.nonscaledImageList.add(ImageIO
+					.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
 			this.imageList.add(ImageIO.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
 		}
 	}
@@ -74,26 +79,6 @@ public class ElevatorGrapthComponent extends JComponent {
 		this.currentStory = currentStory;
 	}
 
-	/**
-	 * Calculates stories size depending on stories number. Also sets defaults,
-	 * scales images.
-	 */
-	public void initialize() {
-		center = getWidth() / 2;
-		size = getHeight() / storiesNumber;
-		passengerWidth = size / 2 ;
-		doorSizeMax = size;
-		doorSizeMin = size / 10;
-		doorSize = doorSizeMax;
-		currentElevatorHeight = getHeight() - (currentStory + 1) * size;
-		defaultDispatchPassengerOffset = size / 2;
-		defaultArrivalPassengerOffset = size / 2;
-		constantArrivalPassengerOffset = size / 4;
-		setArrivalPassengerOffsetToDefault();
-		setDispatchPassengerOffsetToDefault();
-		scaleImages();
-	}
-	
 	public void incDoorSize() {
 		doorSize++;
 	}
@@ -121,24 +106,28 @@ public class ElevatorGrapthComponent extends JComponent {
 			currentElevatorHeight--;
 		}
 	}
-	public void beforeDeboarding(int arrivalPassengers, int elevatorPassengers){
+
+	public void beforeDeboarding(int arrivalPassengers, int elevatorPassengers) {
 		setArrivalPassengers(arrivalPassengers);
 		setElevatorPassengers(elevatorPassengers);
 		changeMovingArrivalFlag();
 		newImageIterator();
 	}
-	public void afterDeboarding(){
+
+	public void afterDeboarding() {
 		setArrivalPassengerOffsetToDefault();
 		changeMovingArrivalFlag();
 	}
-	public void beforeBoarding(int elevatorPassengers, int dispatchPassengers){
+
+	public void beforeBoarding(int elevatorPassengers, int dispatchPassengers) {
 		setElevatorPassengers(elevatorPassengers);
 		setDispatchPassengers(dispatchPassengers);
 		changeMovingDispatchFlag();
 		newImageIterator();
 		setBoardingOffset();
 	}
-	public void afterBoarding(){
+
+	public void afterBoarding() {
 		clearBoardingOffset();
 		changeMovingDispatchFlag();
 	}
@@ -165,6 +154,27 @@ public class ElevatorGrapthComponent extends JComponent {
 
 	public boolean isDeboardingComplete() {
 		return passengerArrivalOffset >= defaultArrivalPassengerOffset + passengerWidth;
+	}
+
+	public void resize() {
+		center = getWidth() / 2;
+		size = getHeight() / storiesNumber;
+		passengerWidth = size / 2;
+		doorSizeMax = size;
+		doorSizeMin = size / 10;
+		//TODO calc doorsize
+		doorSize = size;
+		defaultDispatchPassengerOffset = size / 2;
+		defaultArrivalPassengerOffset = size / 2;
+		constantArrivalPassengerOffset = size / 4;
+		//TODO calc curElHeight depend on previous
+		currentElevatorHeight = getHeight() - (currentStory + 1) * size;
+		scaleImages();
+		if (firstRun) {
+			initialize();
+			firstRun = false;
+		}
+		repaint();
 	}
 
 	/*
@@ -273,10 +283,11 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	private void scaleImages() {
-		for (int i = 0; i < imageList.size(); i++) {
-			imageList.set(i, imageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
+		for (int i = 0; i < nonscaledImageList.size(); i++) {
+			imageList.set(i, nonscaledImageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
 		}
 	}
+
 	private void setDispatchPassengerOffsetToDefault() {
 		passengerDispatchOffset = defaultDispatchPassengerOffset;
 	}
@@ -292,6 +303,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	private void changeMovingArrivalFlag() {
 		movungArrivalFlag = !movungArrivalFlag;
 	}
+
 	private void setBoardingOffset() {
 		dispatchPassengerNumberOffset = 1;
 		elevatorPassengerNumberOffset = -1;
@@ -302,6 +314,7 @@ public class ElevatorGrapthComponent extends JComponent {
 		elevatorPassengerNumberOffset = 0;
 		setDispatchPassengerOffsetToDefault();
 	}
+
 	private void setDispatchPassengers(int dispatchPassengers) {
 		this.dispatchPassengers[currentStory] = dispatchPassengers;
 	}
@@ -309,10 +322,17 @@ public class ElevatorGrapthComponent extends JComponent {
 	private void setArrivalPassengers(int arrivalPassengers) {
 		this.arrivalPassengers[currentStory] = arrivalPassengers;
 	}
+
 	private void setElevatorPassengers(int elevatorPassengers) {
 		this.elevatorPassengers = elevatorPassengers;
 	}
+
 	private void newImageIterator() {
 		imageIterator = imageList.iterator();
+	}
+
+	private void initialize() {
+		setArrivalPassengerOffsetToDefault();
+		setDispatchPassengerOffsetToDefault();
 	}
 }
