@@ -83,7 +83,6 @@ public class ElevatorPainter implements IElevatorPainter {
 			@Override
 			public void run() {
 				elevatorGrapthComponent.setCurrentStory(currentStory);
-
 			}
 		});
 		ActionListener actionListener = new ActionListener() {

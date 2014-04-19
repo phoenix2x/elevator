@@ -94,7 +94,6 @@ public class ElevatorFrame extends JFrame {
 		setContentPane(contentPane);
 
 		mainButton = new JButton(START);
-		mainButton.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		mainButton.addActionListener(new StartButtonListener(worker));
 		int[] dispatchPassengers = new int[storiesNumber];
 		int[] arrivalPassengers = new int[storiesNumber];
@@ -126,11 +125,12 @@ public class ElevatorFrame extends JFrame {
 							.addComponent(elevatorGrapthComponent, GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(248)
-							.addComponent(mainButton)))
+							.addComponent(mainButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addGap(241)))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
-						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 436, GroupLayout.PREFERRED_SIZE)
+						.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 436, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
@@ -146,7 +146,7 @@ public class ElevatorFrame extends JFrame {
 							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 337, GroupLayout.PREFERRED_SIZE)))
-					.addGap(19))
+					.addGap(8))
 		);
 
 		panel_1 = new JPanel();

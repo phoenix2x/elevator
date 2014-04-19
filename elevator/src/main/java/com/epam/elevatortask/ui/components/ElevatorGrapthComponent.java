@@ -25,7 +25,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	private final int storiesNumber;
 	private final int[] dispatchPassengers;
 	private final int[] arrivalPassengers;
-	private final ArrayList<Image> imageList;
+	private final ArrayList<Image> scaledImageList;
 	private final ArrayList<Image> nonscaledImageList;
 	private Iterator<Image> imageIterator;
 	private boolean movingDispatchFlag = false;
@@ -59,7 +59,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	public ElevatorGrapthComponent(int storiesNumber, int[] dispatchPassengers, int[] arrivalPassengers)
 			throws IOException, IllegalArgumentException {
 		super();
-		this.imageList = new ArrayList<>();
+		this.scaledImageList = new ArrayList<>();
 		this.nonscaledImageList = new ArrayList<>();
 		this.storiesNumber = storiesNumber;
 		this.dispatchPassengers = dispatchPassengers;
@@ -67,7 +67,7 @@ public class ElevatorGrapthComponent extends JComponent {
 		for (int i = 1; i <= IMAGES_NUMBER; i++) {
 			this.nonscaledImageList.add(ImageIO
 					.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
-			this.imageList.add(ImageIO.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
+			this.scaledImageList.add(ImageIO.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
 		}
 	}
 
@@ -263,7 +263,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	private void drawImagePassenger(int x, int y, int height, Graphics2D g2) {
-		g2.drawImage(imageList.get(imageList.size() - 1), x, y, null);
+		g2.drawImage(scaledImageList.get(scaledImageList.size() - 1), x, y, null);
 	}
 
 	private void drawStory(int currentHeight, Graphics g) {
@@ -284,7 +284,7 @@ public class ElevatorGrapthComponent extends JComponent {
 
 	private void scaleImages() {
 		for (int i = 0; i < nonscaledImageList.size(); i++) {
-			imageList.set(i, nonscaledImageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
+			scaledImageList.set(i, nonscaledImageList.get(i).getScaledInstance(-1, size, Image.SCALE_SMOOTH));
 		}
 	}
 
@@ -328,7 +328,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	private void newImageIterator() {
-		imageIterator = imageList.iterator();
+		imageIterator = scaledImageList.iterator();
 	}
 
 	private void initialize() {
