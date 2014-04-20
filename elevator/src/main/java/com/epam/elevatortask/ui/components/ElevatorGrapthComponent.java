@@ -11,6 +11,8 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
+import com.epam.elevatortask.ui.exceptions.ResourceNotFoundException;
+
 /**
  * Component for drawing transportation process.
  * 
@@ -18,6 +20,7 @@ import javax.swing.JComponent;
 public class ElevatorGrapthComponent extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private static final int IMAGES_NUMBER = 16;
+	private static final int MAX_PASSENGERS_ELEVATOR = 7;
 	private static final String FILE_PATH = "/img/";
 	private static final String FILE_NAME = "bender_walk";
 	private static final String FILE_EXTENSION = ".png";
@@ -53,11 +56,12 @@ public class ElevatorGrapthComponent extends JComponent {
 	 * @param storiesNumber
 	 * @param dispatchPassengers
 	 * @param arrivalPassengers
+	 * @throws ResourceNotFoundException
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 */
 	public ElevatorGrapthComponent(int storiesNumber, int[] dispatchPassengers, int[] arrivalPassengers)
-			throws IOException, IllegalArgumentException {
+			throws ResourceNotFoundException {
 		super();
 		this.scaledImageList = new ArrayList<>();
 		this.nonscaledImageList = new ArrayList<>();
@@ -65,9 +69,14 @@ public class ElevatorGrapthComponent extends JComponent {
 		this.dispatchPassengers = dispatchPassengers;
 		this.arrivalPassengers = arrivalPassengers;
 		for (int i = 1; i <= IMAGES_NUMBER; i++) {
-			this.nonscaledImageList.add(ImageIO
-					.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
-			this.scaledImageList.add(ImageIO.read(getClass().getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
+			try {
+				this.nonscaledImageList.add(ImageIO.read(getClass().getResource(
+						FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
+				this.scaledImageList.add(ImageIO.read(getClass()
+						.getResource(FILE_PATH + FILE_NAME + i + FILE_EXTENSION)));
+			} catch (Exception e) {
+				throw new ResourceNotFoundException();
+			}
 		}
 	}
 
@@ -162,12 +171,12 @@ public class ElevatorGrapthComponent extends JComponent {
 		passengerWidth = size / 2;
 		doorSizeMax = size;
 		doorSizeMin = size / 10;
-		//TODO calc doorsize
+		// TODO calc doorsize
 		doorSize = size;
 		defaultDispatchPassengerOffset = size / 2;
 		defaultArrivalPassengerOffset = size / 2;
 		constantArrivalPassengerOffset = size / 4;
-		//TODO calc curElHeight depend on previous
+		// TODO calc curElHeight depend on previous
 		currentElevatorHeight = getHeight() - (currentStory + 1) * size;
 		scaleImages();
 		if (firstRun) {
@@ -252,7 +261,7 @@ public class ElevatorGrapthComponent extends JComponent {
 	}
 
 	private void drawElevatorPassengers(int currentHeight, Graphics2D g2, int numberPassengers) {
-		int maxElevatorPassengers = (numberPassengers < 7 ? numberPassengers : 7);
+		int maxElevatorPassengers = (numberPassengers < MAX_PASSENGERS_ELEVATOR ? numberPassengers : MAX_PASSENGERS_ELEVATOR);
 		for (int i = 1; i <= maxElevatorPassengers; i++) {
 			drawImagePassenger(center - size * 9 / 10 + i * size / 10, currentHeight, size, g2);
 		}

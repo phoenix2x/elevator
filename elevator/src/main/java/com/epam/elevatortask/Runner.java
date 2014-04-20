@@ -1,8 +1,6 @@
 package com.epam.elevatortask;
 
 import java.awt.EventQueue;
-import java.io.IOException;
-
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -10,6 +8,7 @@ import org.apache.log4j.PatternLayout;
 import com.epam.elevatortask.config.ApplicationConfig;
 import com.epam.elevatortask.logic.Worker;
 import com.epam.elevatortask.ui.TextAreaAppender;
+import com.epam.elevatortask.ui.exceptions.ResourceNotFoundException;
 import com.epam.elevatortask.ui.forms.ElevatorFrame;
 
 public class Runner {
@@ -41,9 +40,9 @@ public class Runner {
 						}
 					}
 				});
-			} catch (IOException | IllegalArgumentException e1) {
-				LOG.fatal(NOT_FOUND_IMAGE, e1);
-				e1.printStackTrace();
+			} catch (ResourceNotFoundException e) {
+				LOG.fatal(NOT_FOUND_IMAGE, e);
+				e.printStackTrace();
 			}
 		}
 	}	

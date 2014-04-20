@@ -11,6 +11,7 @@ import com.epam.elevatortask.beans.Building;
 import com.epam.elevatortask.beans.Passenger;
 import com.epam.elevatortask.interfaces.IElevatorWorker;
 import com.epam.elevatortask.ui.components.ElevatorGrapthComponent;
+import com.epam.elevatortask.ui.exceptions.ResourceNotFoundException;
 import com.epam.elevatortask.ui.listeners.AbortButtonListener;
 import com.epam.elevatortask.ui.listeners.ElevatorComponentListener;
 import com.epam.elevatortask.ui.listeners.FinishButtonListener;
@@ -81,10 +82,13 @@ public class ElevatorFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 * 
+	 * @throws ResourceNotFoundException
+	 * 
 	 * @throws IOException
 	 */
-	public ElevatorFrame(Building<Passenger> building, int storiesNumber, IElevatorWorker worker, int passengersNumber)
-			throws IOException, IllegalArgumentException {
+	public ElevatorFrame(Building<Passenger> building, int storiesNumber,
+			IElevatorWorker worker, int passengersNumber)
+			throws ResourceNotFoundException {
 		setTitle(ELEVATOR);
 		this.worker = worker;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,15 +103,20 @@ public class ElevatorFrame extends JFrame {
 		int[] dispatchPassengers = new int[storiesNumber];
 		int[] arrivalPassengers = new int[storiesNumber];
 		for (int i = 0; i < building.getStoriesNumber(); i++) {
-			dispatchPassengers[i] = building.getDispatchContainer(i).getPassengersNumber();
-			arrivalPassengers[i] = building.getArrivalContainer(i).getPassengersNumber();
+			dispatchPassengers[i] = building.getDispatchContainer(i)
+					.getPassengersNumber();
+			arrivalPassengers[i] = building.getArrivalContainer(i)
+					.getPassengersNumber();
 		}
-		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber, dispatchPassengers, arrivalPassengers);
+		elevatorGrapthComponent = new ElevatorGrapthComponent(storiesNumber,
+				dispatchPassengers, arrivalPassengers);
 		elevatorGrapthComponent.setMinimumSize(new Dimension(540, 660));
 		elevatorGrapthComponent.setPreferredSize(new Dimension(540, 660));
 		elevatorGrapthComponent.setBorder(new LineBorder(Color.BLACK));
 		elevatorGrapthComponent.setBackground(Color.WHITE);
-		elevatorGrapthComponent.addComponentListener(new ElevatorComponentListener(elevatorGrapthComponent));
+		elevatorGrapthComponent
+				.addComponentListener(new ElevatorComponentListener(
+						elevatorGrapthComponent));
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout(0, 0));
@@ -125,9 +134,9 @@ public class ElevatorFrame extends JFrame {
 							.addGap(6)
 							.addComponent(elevatorGrapthComponent, GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(204)
+							.addGap(210)
 							.addComponent(mainButton, GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-							.addGap(226)))
+							.addGap(210)))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
 						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 436, GroupLayout.PREFERRED_SIZE)
@@ -141,9 +150,9 @@ public class ElevatorFrame extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addComponent(elevatorGrapthComponent, GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addGap(10)
 							.addComponent(mainButton)
-							.addGap(7))
+							.addGap(10))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
@@ -158,7 +167,8 @@ public class ElevatorFrame extends JFrame {
 		panel_1.add(lblElevatorcontainer);
 		lblElevatorcontainer.setAlignmentY(Component.TOP_ALIGNMENT);
 
-		lblElevatorcontinersize = new JLabel(String.valueOf(building.getElevatorContainer().getPassengersNumber()));
+		lblElevatorcontinersize = new JLabel(String.valueOf(building
+				.getElevatorContainer().getPassengersNumber()));
 		panel_1.add(lblElevatorcontinersize);
 
 		panel_2 = new JPanel();
@@ -203,11 +213,13 @@ public class ElevatorFrame extends JFrame {
 			dispatchPanel.add(new JLabel(STORY + i));
 			arrivalPanel.add(new JLabel(STORY + i));
 
-			JLabel newDispatchLabel = new JLabel(String.valueOf(dispatchPassengers[i]));
+			JLabel newDispatchLabel = new JLabel(
+					String.valueOf(dispatchPassengers[i]));
 			dispatchLabelsList.add(newDispatchLabel);
 			dispatchPanel.add(newDispatchLabel);
 
-			JLabel newArrivalLabel = new JLabel(String.valueOf(arrivalPassengers[i]));
+			JLabel newArrivalLabel = new JLabel(
+					String.valueOf(arrivalPassengers[i]));
 			arrivalLabelsList.add(newArrivalLabel);
 			arrivalPanel.add(newArrivalLabel);
 		}

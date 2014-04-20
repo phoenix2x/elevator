@@ -1,6 +1,5 @@
 package com.epam.elevatortask.config;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -73,7 +72,7 @@ public class ApplicationConfig {
 				LOG.error(ELEVATOR_CAPACITY_ERROR);
 				elevatorCapacity = DEF_ELEVATOR_CAPACITY;
 			}
-		} catch (IOException | NumberFormatException e) {
+		} catch (Exception e) {
 			LOG.error(ERROR_IN + fileName + USING_DEFAULTS);
 			storiesNumber = DEF_STORIES_NUMBER;
 			passengersNumber = DEF_PASSENGERS_NUMBER;
